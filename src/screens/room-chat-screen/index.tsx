@@ -1,0 +1,418 @@
+import {Animated, Modal, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {styles} from "./styles.ts";
+import ScrollView = Animated.ScrollView;
+import {useSelector} from "react-redux";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
+import {useEffect, useState} from "react";
+
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
+import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
+import { faVideo } from '@fortawesome/free-solid-svg-icons/faVideo';
+import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane';
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons/faEllipsis';
+
+import { faFaceSmile } from '@fortawesome/free-regular-svg-icons/faFaceSmile';
+import { faImages } from '@fortawesome/free-regular-svg-icons/faImages';
+
+import * as MESSAGE_TYPE from "../../constants/MessageType.ts";
+import {firestore} from "../../configs/FirebaseConfig.ts";
+import {useListAllMessage} from "../../api/useListAllMessages.ts";
+import {useSendMessage} from "../../api/useSendMessage.ts";
+import {MessageItem} from "../../components/message-item";
+import {FontAwesomeButton} from "../../components/fontawesome-button";
+import {EmojisMessage} from "../../components/emojis-message";
+import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
+import {Button} from "../../components/button";
+import {EmojiKeyboard} from "rn-emoji-keyboard";
+
+
+const RoomChatScreen = ({ route, navigation}: any) => {
+    const { chatId, roomName, type} = route.params;
+    const user = useSelector((state: any) => state.userData);
+    const userId = user.id;
+    const displayName = user.display_name;
+
+    const { messages } = useListAllMessage(chatId);
+    const [message, setMessage] = useState('');
+    const [mangerId, setMangerId] = useState();
+    const [settingGroup, setSettingGroup] = useState({
+        allowSendMessage: true,
+    });
+    const [emojiMessageModalShow, setEmojiMessageModalShow] = useState<any>();
+    const [messageModalShow, setMessageModalShow] = useState<any>();
+    const [emojiPanelShow, setEmojiPanelShow] = useState(false);
+
+    const sendMessage = useSendMessage(chatId);
+
+    const handleSendMessage = () =>{
+        if(message.trim() === "") return;
+
+        console.log('Send message: ', message);
+        console.log('send message success');
+        sendMessage({
+            chatId: chatId,
+            messageId: uuidv4(),
+            senderId: userId,
+            senderName: displayName,
+            senderPicture: 'https://vn.portal-pokemon.com/play/resources/pokedex/img/pm/5794f0251b1180998d72d1f8568239620ff5279c.png',
+            type: MESSAGE_TYPE.TEXT,
+            content: message,
+            timestamp: Date.now()
+        });
+        setMessage("");
+    }
+
+    const handleChangeInfomation=()=>{
+        if(type==="private"){
+            navigation.navigate("InformationSingleRoom", {
+                chatId
+            })
+        } if(type ==="public"){
+            navigation.navigate("InformationGroupRoom", {chatId})
+        }
+    }
+
+    const handleMessageItemLongClick = () => {
+
+    }
+
+    useEffect(() => {
+        firestore.collection("Chats")
+            .doc(chatId)
+            .get()
+            .then((snapshot) => {
+                const data = snapshot.data();
+                if(data) {
+                    setMangerId(data.managerId)
+                    setSettingGroup(snapshot.data()?.setting? data.setting: {
+                        allowSendMessage: true,
+                    })
+                }
+            })
+    }, [chatId]);
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.title}>
+                <FontAwesomeButton
+                    icon={{
+                        icon: faArrowLeft,
+                        size: 20,
+                        color: "white"
+                    }}
+                    onClick={() => navigation.goBack()}
+                />
+
+                <View style={styles.bodyTitle}>
+                    <Text style={{fontSize: 16, fontWeight: "bold", color: 'white'}}>
+                        {roomName}
+                    </Text>
+                    <Text style={{fontSize: 12, color: '#DDDDDD'}}>
+                        Đang hoạt động
+                    </Text>
+                </View>
+
+                <FontAwesomeButton
+                    icon={{
+                        icon: faPhone,
+                        size: 20,
+                        color: "white"
+                    }}
+                />
+                <FontAwesomeButton
+                    icon={{
+                        icon: faVideo,
+                        size: 20,
+                        color: "white"
+                    }}
+                />
+                <FontAwesomeButton
+                    icon={{
+                        icon: faBars,
+                        size: 20,
+                        color: "white"
+                    }}
+                />
+            </View>
+
+            <ScrollView style={styles.bodyChat}>
+                {messages?.map((item: any) => (
+                    <MessageItem
+                        key={item.messageId}
+                        msg={item}
+                        isSender={item.senderId === userId}
+                        onHeartIconLongClick={() => setEmojiMessageModalShow({
+                            msg: item,
+                            isSender: item.senderId === userId
+                        })}
+                        onLongClick={() => setMessageModalShow({
+                            msg: item,
+                            isSender: item.senderId === userId
+                        })}
+                    />
+                ))}
+            </ScrollView>
+
+            <View style={styles.textInputChat}>
+                {(settingGroup.allowSendMessage || mangerId === userId) ? (
+                    <>
+                        <FontAwesomeButton
+                            icon={{
+                                icon: faFaceSmile,
+                                size: 20,
+                                color: "gray"
+                            }}
+                            onClick={() => setEmojiPanelShow(pre => !pre)}
+                        />
+                        <TextInput
+                            style={{
+                                flex: 1,
+                                fontSize: 15,
+                                padding: 0
+                            }}
+                            value={message}
+                            numberOfLines={2}
+                            multiline={true}
+                            placeholder={"Nhập tin nhắn"}
+                            onChangeText={setMessage}
+                            // onFocus={() => {
+                            //     setopenEmoji(false);
+                            //     setOpenImage(false);
+                            // }}
+                        />
+                        <FontAwesomeButton
+                            icon={{
+                                icon: faEllipsis,
+                                size: 20,
+                                color: "gray"
+                            }}
+                            // onClick={handleSendMessage}
+                        />
+                        <FontAwesomeButton
+                            icon={{
+                                icon: faImages,
+                                size: 20,
+                                color: "gray"
+                            }}
+                            // onClick={handleSendMessage}
+                        />
+                        <FontAwesomeButton
+                            icon={{
+                                icon: faPaperPlane,
+                                size: 20,
+                                color: "#70a1ff"
+                            }}
+                            onClick={handleSendMessage}
+                        />
+                    </>
+                ) : (
+                    <Text style={{color: '#DDDDDD', textAlign: 'center'}}>Chỉ nhóm trưởng mới được nhắn</Text>
+                )}
+            </View>
+
+            {emojiPanelShow && (
+                <ScrollView style={{
+                    minHeight: 250,
+                    maxHeight: 250,
+                    backgroundColor: 'white',
+                }}>
+                    <View style={{
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingVertical: 10,
+                        paddingHorizontal: 10,
+                        gap: 15,
+                    }}>
+                        <EmojiKeyboard onEmojiSelected={() => {}}/>
+                    </View>
+                </ScrollView>
+            )}
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={!!emojiMessageModalShow}
+                onRequestClose={() => {
+                    console.log('on close')
+                    // setModalVisible(!modalVisible);
+                }}
+            >
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                    }}
+                    activeOpacity={1}
+                    onPressOut={() => setEmojiMessageModalShow(null)}
+                >
+                    <TouchableWithoutFeedback>
+                        <View>
+                            {emojiMessageModalShow && (<MessageItem msg={emojiMessageModalShow.msg} isSender={emojiMessageModalShow.isSender}/>)}
+                            <EmojisMessage onClick={(emojiCode: string) => console.log('emojiCode', emojiCode)}/>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
+            </Modal>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={!!messageModalShow}
+                onRequestClose={() => {
+                    console.log('on close')
+                    // setModalVisible(!modalVisible);
+                }}
+            >
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                    }}
+                    activeOpacity={1}
+                    onPressOut={() => setMessageModalShow(null)}
+                >
+                    <TouchableWithoutFeedback>
+                        <View>
+                            {messageModalShow && (<MessageItem msg={messageModalShow.msg} isSender={messageModalShow.isSender}/>)}
+                            <EmojisMessage onClick={(emojiCode: string) => console.log('emojiCode', emojiCode)}/>
+                            <View style={{
+                                flexWrap: 'wrap',
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                paddingVertical: 10,
+                                paddingHorizontal: 20,
+                                borderRadius: 12,
+                                backgroundColor: 'white',
+                                marginTop: 12,
+                                marginHorizontal: 20,
+                            }}>
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Trả lời"}
+                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-reply.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Chuyển tiếp"}
+                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-share.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Sao chép"}
+                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-copy.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Thu hồi"}
+                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-recall.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Ghim"}
+                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-pin.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Chi tiết"}
+                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-info.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                                <Button
+                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                    text={"Xóa"}
+                                    textStyle={{fontSize: 12, textAlign: 'center', fontWeight: 500, color: 'gray', marginTop: 5}}
+                                    icon={require('../../assets/icon-trash.png')}
+                                    iconPosition={"left"}
+                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                />
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </TouchableOpacity>
+            </Modal>
+
+            {/*{openEmoji && (*/}
+            {/*    <View style={{height: 200}}>*/}
+            {/*        <ScrollView>*/}
+            {/*            <EmojiKeyboard onEmojiSelected={selectEmoji}/>*/}
+            {/*        </ScrollView>*/}
+            {/*    </View>*/}
+            {/*)}*/}
+
+            {/*{openImage && (*/}
+            {/*    <View style={{height: HEIGHT / 3}}>*/}
+            {/*        <ScrollView style={{flex: 1}}>*/}
+            {/*            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>*/}
+            {/*                {Object.entries(imagesList).map(([key, item]) => {*/}
+            {/*                    return (*/}
+            {/*                        <ImageView item={item} key={key} setListImageSelect={setListImageSelect}/>*/}
+            {/*                    )*/}
+            {/*                })}*/}
+            {/*            </View>*/}
+            {/*        </ScrollView>*/}
+            {/*        {viewSendImage && (*/}
+            {/*            <View style={{position: 'absolute', bottom: 10, alignItems: 'center', width: "100%"}}>*/}
+            {/*                <TouchableOpacity style={styles.btnSendImage}>*/}
+            {/*                    <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>*/}
+            {/*                        Send image {listImageSelect.length}*/}
+            {/*                    </Text>*/}
+            {/*                </TouchableOpacity>*/}
+            {/*            </View>*/}
+            {/*        )}*/}
+            {/*    </View>*/}
+            {/*)}*/}
+
+            {/*{openFile && (*/}
+            {/*    <View style={{height: HEIGHT / 3}}>*/}
+            {/*        <ScrollView style={{flex: 1}}>*/}
+            {/*            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>*/}
+            {/*                {Object.entries(fileList).map(([key, item]) => {*/}
+            {/*                    return (*/}
+            {/*                        <FileView item={item} key={key} setListSelectFile={setListSelectFile}/>*/}
+            {/*                    )*/}
+            {/*                })}*/}
+            {/*            </View>*/}
+            {/*        </ScrollView>*/}
+            {/*        {viewSendFile && (*/}
+            {/*            <View style={{position: 'absolute', bottom: 10, alignItems: 'center', width: "100%"}}>*/}
+            {/*                <TouchableOpacity*/}
+            {/*                    onPress={handleSendFile}*/}
+            {/*                    style={styles.btnSendImage}*/}
+            {/*                >*/}
+            {/*                    <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>*/}
+            {/*                        Send image {listSelectFile.length}*/}
+            {/*                    </Text>*/}
+            {/*                </TouchableOpacity>*/}
+            {/*            </View>*/}
+            {/*        )}*/}
+            {/*    </View>*/}
+            {/*)}*/}
+        </View>
+    )
+}
+
+export {RoomChatScreen}
