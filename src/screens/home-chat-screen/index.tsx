@@ -1,4 +1,4 @@
-import {View, TouchableOpacity, TextInput, Animated} from "react-native";
+import {View, TextInput, Animated} from "react-native";
 import {styles} from "./styles.ts";
 import ScrollView = Animated.ScrollView;
 import {useSelector} from "react-redux";
@@ -42,8 +42,6 @@ const HomeChatScreen = ({navigation}: any) => {
             <View style={styles.body}>
                 <ScrollView>
                     {participants && participants.map((item: any) => {
-                        console.log('ITEMMMMM', item);
-
                         let chatName: string;
                         const type = item.type;
                         if(type === 'public') {

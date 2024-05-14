@@ -6,16 +6,18 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import * as ROUTING from "./path.ts";
 import {RoomChatScreen} from "../screens/room-chat-screen";
 import {CallScreen} from "../screens/call-screen";
+import {FlashScreen} from "../screens/flash-screen";
 
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName={ROUTING.ROUTING_LOGIN}>
+            <Stack.Navigator initialRouteName={ROUTING.ROUTING_FLASH_SCREEN}>
                 {/*<Stack.Screen name='Home' component={HomeScreen} options={{headerShown: false,}}/>*/}
                 {/*<Stack.Screen name='Details' component={DetailsScreen} options={{headerShown: false,}}/>*/}
-                <Stack.Screen name={ROUTING.ROUTING_LOGIN} component={LoginScreen}/>
+                <Stack.Screen name={ROUTING.ROUTING_FLASH_SCREEN} component={FlashScreen} options={{headerShown: false,}}/>
+                <Stack.Screen name={ROUTING.ROUTING_LOGIN} component={LoginScreen} options={{headerShown: false,}}/>
                 {/*<Stack.Screen name='Register' component={Register} />*/}
                 {/*<Stack.Screen name='ForgotPassword' component={ForgotPassword} />*/}
                 {/*<Stack.Screen name="SuccessRegister" component={SuccessRegister} options={{ headerShown: false, }} />*/}
