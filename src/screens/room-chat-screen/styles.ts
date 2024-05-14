@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
     bodyChat:{
         flex:1,
         backgroundColor: '#ecf0f1',
-        flexDirection:'column-reverse'
     },
     textInputChat:{
         flexDirection:'row',

@@ -167,7 +167,9 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                 />
             </View>
 
-            <ScrollView style={styles.bodyChat}>
+            <ScrollView
+                style={styles.bodyChat}
+            >
                 {messages?.map((item: any) => (
                     <MessageItem
                         key={item.messageId}
@@ -384,65 +386,8 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                     </TouchableWithoutFeedback>
                 </TouchableOpacity>
             </Modal>
-
-            {/*{openEmoji && (*/}
-            {/*    <View style={{height: 200}}>*/}
-            {/*        <ScrollView>*/}
-            {/*            <EmojiKeyboard onEmojiSelected={selectEmoji}/>*/}
-            {/*        </ScrollView>*/}
-            {/*    </View>*/}
-            {/*)}*/}
-
-            {/*{openImage && (*/}
-            {/*    <View style={{height: HEIGHT / 3}}>*/}
-            {/*        <ScrollView style={{flex: 1}}>*/}
-            {/*            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>*/}
-            {/*                {Object.entries(imagesList).map(([key, item]) => {*/}
-            {/*                    return (*/}
-            {/*                        <ImageView item={item} key={key} setListImageSelect={setListImageSelect}/>*/}
-            {/*                    )*/}
-            {/*                })}*/}
-            {/*            </View>*/}
-            {/*        </ScrollView>*/}
-            {/*        {viewSendImage && (*/}
-            {/*            <View style={{position: 'absolute', bottom: 10, alignItems: 'center', width: "100%"}}>*/}
-            {/*                <TouchableOpacity style={styles.btnSendImage}>*/}
-            {/*                    <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>*/}
-            {/*                        Send image {listImageSelect.length}*/}
-            {/*                    </Text>*/}
-            {/*                </TouchableOpacity>*/}
-            {/*            </View>*/}
-            {/*        )}*/}
-            {/*    </View>*/}
-            {/*)}*/}
-
-            {/*{openFile && (*/}
-            {/*    <View style={{height: HEIGHT / 3}}>*/}
-            {/*        <ScrollView style={{flex: 1}}>*/}
-            {/*            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>*/}
-            {/*                {Object.entries(fileList).map(([key, item]) => {*/}
-            {/*                    return (*/}
-            {/*                        <FileView item={item} key={key} setListSelectFile={setListSelectFile}/>*/}
-            {/*                    )*/}
-            {/*                })}*/}
-            {/*            </View>*/}
-            {/*        </ScrollView>*/}
-            {/*        {viewSendFile && (*/}
-            {/*            <View style={{position: 'absolute', bottom: 10, alignItems: 'center', width: "100%"}}>*/}
-            {/*                <TouchableOpacity*/}
-            {/*                    onPress={handleSendFile}*/}
-            {/*                    style={styles.btnSendImage}*/}
-            {/*                >*/}
-            {/*                    <Text style={{fontSize: 20, fontWeight: 'bold', color: 'white'}}>*/}
-            {/*                        Send image {listSelectFile.length}*/}
-            {/*                    </Text>*/}
-            {/*                </TouchableOpacity>*/}
-            {/*            </View>*/}
-            {/*        )}*/}
-            {/*    </View>*/}
-            {/*)}*/}
         </View>
     )
 }
 
-export {RoomChatScreen}
+export {RoomChatScreen};
