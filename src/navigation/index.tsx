@@ -5,6 +5,7 @@ import React from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import * as ROUTING from "./path.ts";
 import {RoomChatScreen} from "../screens/room-chat-screen";
+import {CallScreen} from "../screens/call-screen";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ const Navigation = () => {
                 {/*<Stack.Screen name="SuccessRegister" component={SuccessRegister} options={{ headerShown: false, }} />*/}
                 <Stack.Screen name={ROUTING.ROUTING_HOME_CHAT} component={HomeChatScreen} options={{headerShown: false,}}/>
                 <Stack.Screen name={ROUTING.ROUTING_ROOM_CHAT} component={RoomChatScreen} options={{ headerShown: false, }}/>
+                <Stack.Screen name={ROUTING.ROUTING_CALL} component={CallScreen} options={{ headerShown: false, }}/>
                 {/*<Stack.Screen name="InformationSingleRoom" component={InformationSingleRoom} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="InformationGroupRoom" component={InformationGroupRoom} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false, }}/>*/}

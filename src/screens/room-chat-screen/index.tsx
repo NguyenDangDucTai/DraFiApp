@@ -23,9 +23,10 @@ import {useSendMessage} from "../../api/useSendMessage.ts";
 import {MessageItem} from "../../components/message-item";
 import {FontAwesomeButton} from "../../components/fontawesome-button";
 import {EmojisMessage} from "../../components/emojis-message";
-import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {Button} from "../../components/button";
 import {EmojiKeyboard} from "rn-emoji-keyboard";
+import {ROUTING_CALL} from "../../navigation/path.ts";
+import {chatSocket} from "../../configs/SocketIOConfig.ts";
 
 
 const RoomChatScreen = ({ route, navigation}: any) => {
@@ -74,8 +75,35 @@ const RoomChatScreen = ({ route, navigation}: any) => {
         }
     }
 
-    const handleMessageItemLongClick = () => {
+    const handleCall = (type: string) => {
+        const incomingVoiceCall = {
+            receiveId: '',
+            senderId: user?.id,
+            senderPicture: user?.avatar,
+            senderName: user?.display_name,
+            receiveName: roomName,
+            receivePicture: '',
+            chatId: chatId,
+        };
 
+        if (type == "private") {
+            chatSocket.emit("request-to-voice-call-private", incomingVoiceCall);
+        }
+        // if (type == "public") {
+        //     chatSocket.emit("request-to-voice-call-public", {
+        //         currentChat: currentChat,
+        //         incomingVoiceCall: incomingVoiceCall,
+        //     });
+        // }
+
+        // navigation.navigate(ROUTING_CALL, {
+        //     chatID: chatId,
+        //     userName: user.display_name,
+        //     avatar: user.avatar,
+        //     roomName: roomName,
+        //     roomType: type,
+        //     type: type,
+        // })
     }
 
     useEffect(() => {
@@ -120,6 +148,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                         size: 20,
                         color: "white"
                     }}
+                    onClick={() => handleCall('VOICE')}
                 />
                 <FontAwesomeButton
                     icon={{
@@ -127,6 +156,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                         size: 20,
                         color: "white"
                     }}
+                    onClick={() => handleCall('VIDEO')}
                 />
                 <FontAwesomeButton
                     icon={{

@@ -42,6 +42,8 @@ const HomeChatScreen = ({navigation}: any) => {
             <View style={styles.body}>
                 <ScrollView>
                     {participants && participants.map((item: any) => {
+                        console.log('ITEMMMMM', item);
+
                         let chatName: string;
                         const type = item.type;
                         if(type === 'public') {
