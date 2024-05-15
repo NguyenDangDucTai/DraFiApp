@@ -1,8 +1,11 @@
 import {Image, Text, TouchableOpacity, View} from "react-native";
 import {styles} from "./styles.ts";
 import moment from "moment-timezone";
+import {RoomChat} from "../../models/RoomChat.ts";
 
-const MessageBox = ({ item, onClick }: any) => {
+const MessageBox = ({ item, user, onClick }: { item: RoomChat, user: any, onClick?: any }) => {
+    const latestMessage = item.getLatestMessage();
+
     return (
         <TouchableOpacity
             style={styles.message}
@@ -10,20 +13,20 @@ const MessageBox = ({ item, onClick }: any) => {
         >
             <Image
                 source={{
-                    uri: item.image
+                    uri: item?.picture
                 }} style={{width: 50, height: 50, borderRadius: 100}}
             />
 
             <View style={styles.content}>
-                <Text style={{fontSize: 15, fontWeight: 500}}>{item.displayName}</Text>
+                <Text style={{fontSize: 15, fontWeight: 500}}>{item.getDisplayName(user.id)}</Text>
                 <Text style={{fontSize: 15, color: "#AAAAAA", marginTop: 7}}>
-                    {item?.content?.type === 'text' ? (item?.content?.content?.length > 28 ? `${item?.content?.content?.slice(0, 28)}...` : item?.content?.content)
-                        : (item?.content?.type === 'image' ? 'Bạn đã nhận được một hình ảnh' : (item?.content?.type === 'files' ? 'Bạn đã nhận được một file' : 'Hãy cùng nhau trò chuyện nhé'))}
+                    {latestMessage?.type === 'text' ? (latestMessage?.content?.length > 28 ? `${latestMessage?.content?.slice(0, 28)}...` : latestMessage?.content)
+                        : (latestMessage?.type === 'image' ? 'Bạn đã nhận được một hình ảnh' : (latestMessage?.type === 'files' ? 'Bạn đã nhận được một file' : 'Hãy cùng nhau trò chuyện nhé'))}
                 </Text>
             </View>
 
             <Text style={{color: "#AAAAAA"}}>
-                {item?.content?.timestamp ? moment(item?.content?.timestamp).format("HH:mm") : ""}
+                {latestMessage?.timestamp ? moment(latestMessage?.timestamp).format("HH:mm") : ""}
             </Text>
         </TouchableOpacity>
     )

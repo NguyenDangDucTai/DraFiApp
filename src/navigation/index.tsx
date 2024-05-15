@@ -7,6 +7,7 @@ import * as ROUTING from "./path.ts";
 import {RoomChatScreen} from "../screens/room-chat-screen";
 import {CallScreen} from "../screens/call-screen";
 import {FlashScreen} from "../screens/flash-screen";
+import {CallConnectionScreen} from "../screens/call-connection-screen";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ const Navigation = () => {
                 {/*<Stack.Screen name="SuccessRegister" component={SuccessRegister} options={{ headerShown: false, }} />*/}
                 <Stack.Screen name={ROUTING.ROUTING_HOME_CHAT} component={HomeChatScreen} options={{headerShown: false,}}/>
                 <Stack.Screen name={ROUTING.ROUTING_ROOM_CHAT} component={RoomChatScreen} options={{ headerShown: false, }}/>
+                <Stack.Screen name={ROUTING.ROUTING_CALL_CONNECTION_SCREEN} component={CallConnectionScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_CALL} component={CallScreen} options={{ headerShown: false, }}/>
                 {/*<Stack.Screen name="InformationSingleRoom" component={InformationSingleRoom} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="InformationGroupRoom" component={InformationGroupRoom} options={{ headerShown: false, }}/>*/}

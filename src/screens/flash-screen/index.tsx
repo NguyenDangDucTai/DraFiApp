@@ -14,7 +14,10 @@ const FlashScreen = ({navigation}: any) => {
         login(data)
             .then((res) => {
                 dispatch(setUser(res.data.user_info));
-                navigation.navigate(ROUTING_HOME_CHAT);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: ROUTING_HOME_CHAT }]
+                });
             })
             .catch((error) => {
                 console.error(error.response.data);
@@ -28,7 +31,10 @@ const FlashScreen = ({navigation}: any) => {
                 const data: { username: string, password: string } = JSON.parse(loginInfo);
                 handleLogin(data);
             } else {
-                navigation.navigate(ROUTING_LOGIN);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: ROUTING_LOGIN }]
+                });
             }
         };
 
