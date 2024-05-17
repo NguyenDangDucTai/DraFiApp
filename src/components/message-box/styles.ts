@@ -3,15 +3,15 @@ import {StyleSheet} from "react-native";
 
 const styles = StyleSheet.create({
     message:{
-        width:"100%",
+        flex:1,
         backgroundColor:'white',
         flexDirection:'row',
-        paddingHorizontal: 20,
-        paddingVertical: 17,
-        gap: 20,
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: '#f5f6fa'
+        borderRadius:10,
+        marginHorizontal:10,
+        marginVertical:5,
+        alignContent:'center',
+        paddingVertical:5,
+
     },
     img:{
         justifyContent: "center",
@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
         paddingHorizontal:15
     },
     body:{
-        borderBottomWidth:1,
         borderColor:'#BBBBBB',
         flex:1,
         paddingVertical:10,
@@ -32,7 +31,17 @@ const styles = StyleSheet.create({
         width:60,
         height:"100%",
         alignItems:'flex-end',
-        paddingRight:10
+        paddingRight:10,
+    },
+    messageUR:{
+        backgroundColor:"red",
+        color:"white",
+        fontWeight:"bold",
+        paddingVertical:2,
+        paddingHorizontal:5,
+        borderRadius:10,
+        fontSize:10,
+        marginTop:5,
     }
 })
 

@@ -40,24 +40,31 @@ const HomeChatScreen = ({navigation}: any) => {
             </View>
 
             <View style={styles.body}>
-                <ScrollView>
+                <ScrollView
+                    keyboardDismissMode={"on-drag"}
+                >
                     {participants && participants.map((item: any) => {
                         let chatName: string;
+                        let avatar: string;
                         const type = item.type;
                         if(type === 'public') {
                             chatName = item.name;
+                            avatar = item.picture;
                         } else {
                             const indexParticipant = item.participants.indexOf(userId);
                             chatName = item.name.split('/')[indexParticipant];
+                            avatar = item.picture.split('|')[indexParticipant];
                         }
                         let latestMessage = item?.messages && item?.messages?.length > 0 ? item.messages[item.messages.length - 1] : null;
+
+
 
                         return (
                             <MessageBox
                                 item={{
                                     id: item.chatId,
                                     displayName: chatName,
-                                    image: item.picture,
+                                    image: avatar,
                                     content: latestMessage,
                                     type: item.type,
                                 }}
