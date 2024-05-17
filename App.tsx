@@ -3,7 +3,6 @@ import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 import {Navigation} from "./src/navigation";
 import {Redux} from "./src/redux";
-import MainApp from "./MainApp.tsx";
 
 const queryClient = new QueryClient();
 
@@ -12,7 +11,6 @@ function App(): React.JSX.Element {
         <QueryClientProvider client={queryClient}>
             <Redux>
                 <Navigation/>
-                <MainApp/>
             </Redux>
         </QueryClientProvider>
     );

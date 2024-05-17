@@ -22,7 +22,7 @@ const CallScreen = (props: any) => {
     const prebuiltRef = useRef();
     const {route} = props;
     const {params} = route;
-    const {chatID, userName, avatar, roomName, roomType, type} = params;
+    const {chatId, userId, userName, avatar, roomName, roomType, type} = params;
 
     const callConfigWithType = type === 'VIDEO' ? ONE_ON_ONE_VIDEO_CALL_CONFIG : ONE_ON_ONE_VOICE_CALL_CONFIG;
 
@@ -32,9 +32,9 @@ const CallScreen = (props: any) => {
                 ref={prebuiltRef}
                 appID={KeyCenter.appID}
                 appSign={KeyCenter.appSign}
-                userID={chatID}
+                userID={chatId}
                 userName={userName}
-                callID='FJbeam'
+                callID={chatId}
 
                 config={{
                     // ...ONE_ON_ONE_VOICE_CALL_CONFIG,
@@ -51,17 +51,11 @@ const CallScreen = (props: any) => {
                         </View>
                     },
                     onHangUp: () => {
-                        console.log('########CallPage onHangUp');
-                        props.navigation.navigate(ROUTING_ROOM_CHAT, {
-                            chatId: chatID,
-                            roomName: roomName,
-                            type: roomType,
-                        });
+                        props.navigation.navigate(ROUTING_ROOM_CHAT, { chatId: chatId });
                     },
                     timingConfig: {
                         isDurationVisible: true,
                         onDurationUpdate: (duration: any) => {
-                            console.log('########CallWithInvitation onDurationUpdate', duration);
                             if (duration === 10 * 60) {
                                 ZegoUIKitPrebuiltCallService.hangUp();
                             }
@@ -73,19 +67,11 @@ const CallScreen = (props: any) => {
                         ],
                     },
                     onWindowMinimized: () => {
-                        console.log('[Demo]CallPage onWindowMinimized');
-                        props.navigation.navigate(ROUTING_ROOM_CHAT, {
-                            chatId: chatID,
-                            roomName: roomName,
-                            type: roomType,
-                        });
+                        props.navigation.navigate(ROUTING_ROOM_CHAT, { chatId: chatId });
                     },
                     onWindowMaximized: () => {
-                        console.log('[Demo]CallPage onWindowMaximized');
                         props.navigation.navigate(ROUTING_CALL, {
-                            userID: chatID,
-                            userName: userName,
-                            callID: 'FJbeam',
+                            chatId, userId, userName, avatar, roomName, roomType, type
                         });
                     },
                 }}

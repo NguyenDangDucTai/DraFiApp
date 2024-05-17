@@ -25,12 +25,13 @@ import {FontAwesomeButton} from "../../components/fontawesome-button";
 import {EmojisMessage} from "../../components/emojis-message";
 import {Button} from "../../components/button";
 import {EmojiKeyboard} from "rn-emoji-keyboard";
-import {ROUTING_CALL} from "../../navigation/path.ts";
+import {ROUTING_CALL, ROUTING_CALL_CONNECTION_SCREEN, ROUTING_ROOM_CHAT} from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
+import {RoomChat} from "../../models/RoomChat.ts";
 
 
-const RoomChatScreen = ({ route, navigation}: any) => {
-    const { chatId, roomName, type} = route.params;
+const RoomChatScreen = ({ route, navigation }: any) => {
+    const { chatId } = route.params;
     const user = useSelector((state: any) => state.userData);
     const userId = user.id;
     const displayName = user.display_name;
@@ -44,6 +45,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
     const [emojiMessageModalShow, setEmojiMessageModalShow] = useState<any>();
     const [messageModalShow, setMessageModalShow] = useState<any>();
     const [emojiPanelShow, setEmojiPanelShow] = useState(false);
+    const [roomChat, setRoomChat] = useState<RoomChat>();
 
     const sendMessage = useSendMessage(chatId);
 
@@ -65,45 +67,52 @@ const RoomChatScreen = ({ route, navigation}: any) => {
         setMessage("");
     }
 
-    const handleChangeInfomation=()=>{
-        if(type==="private"){
-            navigation.navigate("InformationSingleRoom", {
-                chatId
-            })
-        } if(type ==="public"){
-            navigation.navigate("InformationGroupRoom", {chatId})
-        }
-    }
+    const handleBtnCallClick = (callType: string) => {
+        console.log('handle btn call click');
 
-    const handleCall = (type: string) => {
         const incomingVoiceCall = {
-            receiveId: '',
+            receiveId: roomChat?.getReceiverId(userId),
             senderId: user?.id,
             senderPicture: user?.avatar,
             senderName: user?.display_name,
-            receiveName: roomName,
-            receivePicture: '',
-            chatId: chatId,
+            receiveName: roomChat?.getDisplayName(userId),
+            receivePicture: roomChat?.picture,
+            chatId: roomChat?.chatId,
         };
 
-        if (type == "private") {
+        if (callType == "VOICE") {
             chatSocket.emit("request-to-voice-call-private", incomingVoiceCall);
+
+            navigation.navigate(ROUTING_CALL_CONNECTION_SCREEN, {
+                avatar: roomChat?.picture,
+                displayName: roomChat?.getDisplayName(userId),
+                isSender: true,
+                status: "Đang kết nối",
+                onAccept: handleAcceptCall,
+                onReject: handleRejectCall,
+                onCancel: handleCancelCall
+            })
         }
+
         // if (type == "public") {
         //     chatSocket.emit("request-to-voice-call-public", {
         //         currentChat: currentChat,
         //         incomingVoiceCall: incomingVoiceCall,
         //     });
         // }
+    }
 
-        // navigation.navigate(ROUTING_CALL, {
-        //     chatID: chatId,
-        //     userName: user.display_name,
-        //     avatar: user.avatar,
-        //     roomName: roomName,
-        //     roomType: type,
-        //     type: type,
-        // })
+    const handleAcceptCall = () => {
+        console.log('Accept call');
+    }
+
+    const handleRejectCall = () => {
+        console.log('Reject call');
+    }
+
+    const handleCancelCall = () => {
+        console.log('Cancel call');
+        navigation.goBack();
     }
 
     useEffect(() => {
@@ -117,6 +126,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                     setSettingGroup(snapshot.data()?.setting? data.setting: {
                         allowSendMessage: true,
                     })
+                    setRoomChat(new RoomChat(data));
                 }
             })
     }, [chatId]);
@@ -135,7 +145,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
 
                 <View style={styles.bodyTitle}>
                     <Text style={{fontSize: 16, fontWeight: "bold", color: 'white'}}>
-                        {roomName}
+                        {roomChat?.getDisplayName(userId)}
                     </Text>
                     <Text style={{fontSize: 12, color: '#DDDDDD'}}>
                         Đang hoạt động
@@ -148,7 +158,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                         size: 20,
                         color: "white"
                     }}
-                    onClick={() => handleCall('VOICE')}
+                    onClick={() => handleBtnCallClick('VOICE')}
                 />
                 <FontAwesomeButton
                     icon={{
@@ -156,7 +166,7 @@ const RoomChatScreen = ({ route, navigation}: any) => {
                         size: 20,
                         color: "white"
                     }}
-                    onClick={() => handleCall('VIDEO')}
+                    onClick={() => handleBtnCallClick('VIDEO')}
                 />
                 <FontAwesomeButton
                     icon={{
