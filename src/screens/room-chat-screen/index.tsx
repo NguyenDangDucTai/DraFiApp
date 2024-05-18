@@ -4,7 +4,7 @@ import ScrollView = Animated.ScrollView;
 import {useSelector} from "react-redux";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
@@ -107,6 +107,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         // }
     }
 
+
     const handleAcceptCall = () => {
         console.log('Accept call');
     }
@@ -162,6 +163,14 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         }
     }
 
+    const scrollViewRef = useRef(null);
+
+    useEffect(() => {
+        // Scroll to the bottom when content size changes
+        // @ts-ignore
+        scrollViewRef.current.scrollToEnd({ animated: true });
+    }, [messages]);
+
     return (
         <View style={styles.container}>
             <View style={styles.title}>
@@ -211,6 +220,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
             <ScrollView
                 style={styles.bodyChat}
+                ref={scrollViewRef}
             >
                 {messages?.map((item: any) => (
                     <MessageItem
