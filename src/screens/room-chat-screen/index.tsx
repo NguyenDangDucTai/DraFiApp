@@ -158,7 +158,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const typeRoom = roomChat?.type
     const handleMenu = ()=>{
         if(typeRoom === 'private'){
-            navigation.navigate(ROUTING_INFO_SINGLE_ROOM, {roomChat: roomChat });
+            navigation.navigate(ROUTING_INFO_SINGLE_ROOM, {item: roomChat, user: user });
         }
     }
 

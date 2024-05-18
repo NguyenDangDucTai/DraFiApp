@@ -18,9 +18,10 @@ import { faBook } from '@fortawesome/free-solid-svg-icons/faBook';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import {FindUserScreen} from "../screens/find-user-screen";
 import {CallConnectionScreen} from "../screens/call-connection-screen";
-import {InformationSingleRoom} from "../screens/InformationSingleRoom";
+import {InformationSingleRoom} from "../screens/info-single-room-screen";
 import {ScanQrCodeScreen} from "../screens/scan-qr-code-screen"
 import ScanQrCodeCompleteScreen from "../screens/scan-qr-code-complete-screen"
+import {PersonalPageScreen} from "../screens/personal-page-screen";
 
 
 const Stack = createNativeStackNavigator();
@@ -44,11 +45,10 @@ const Navigation = () => {
                 <Stack.Screen name={ROUTING.ROUTING_INFO_SINGLE_ROOM} component={InformationSingleRoom} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_SCAN_QR_CODE_SCREEN} component={ScanQrCodeScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_SCAN_QR_CODE_COMPLETE_SCREEN} component={ScanQrCodeCompleteScreen} options={{ headerShown: false, }}/>
-                {/*<Stack.Screen name="InformationGroupRoom" component={InformationGroupRoom} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="SeeMembers" component={SeeMembers} options={{ headerShown: false, }}/>*/}
                 <Stack.Screen name={ROUTING.ROUTING_FRIEND_REQUEST} component={FriendRequestScreen} options={{ headerShown: false, }}/>
-                {/*<Stack.Screen name="PersonalPage" component={PersonalPage} options={{ headerShown: false, }}/>*/}
+                <Stack.Screen name={ROUTING.ROUTING_PERSONAL_PAGE} component={PersonalPageScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_FIND_USER} component={FindUserScreen} options={{ headerShown: false, }}/>
                 {/*<Stack.Screen name="SettingUser" component={SettingUser} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false, }}/>*/}

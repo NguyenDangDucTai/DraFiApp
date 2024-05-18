@@ -7,12 +7,34 @@ import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
 import { faBell } from '@fortawesome/free-solid-svg-icons/faBell';
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import ScrollView = Animated.ScrollView;
+import {RoomChat} from "../../models/RoomChat.ts";
+import {ROUTING_PERSONAL_PAGE} from "../../navigation/path.ts";
 
 
 export const InformationSingleRoom = ({navigation, route}:any) =>{
 
-    const roomChat = route.params.roomChat;
-    console.log("day la room chat",roomChat)
+    const {item, user} = route.params;
+    console.log("day la room chat", item)
+
+    const userId = user.id;
+
+
+    const participantIndex = item.participants.indexOf(userId);
+    // console.log("Partic index",participantIndex)
+
+
+    let avatar : string | undefined;
+    if(item.type === "public"){
+        avatar = item.picture;
+    } else {
+        avatar = item.picture.split('|')[participantIndex];
+    }
+    let displayName = item.getDisplayName(user.id);
+
+
+    const handlePersonalPage =()=>{
+        navigation.navigate(ROUTING_PERSONAL_PAGE, {userId: item.participants[participantIndex]});
+    }
 
 
     return(
@@ -39,10 +61,10 @@ export const InformationSingleRoom = ({navigation, route}:any) =>{
                 <View style={styles.box}>
                     <View style={{alignItems:'center'}}>
                         <Image
-                            // source={require('../../image/chatHome/doraemon.png')}
+                            source={{uri: avatar}}
                             style={{width:100, height:100, borderRadius:100, marginBottom:10}}
                         />
-                        <Text style={{fontWeight:'bold', color:'black'}}>DORAEMON</Text>
+                        <Text style={{fontWeight:'bold', color:'black'}}>{displayName}</Text>
                     </View>
                     <View style={{width:"100%", paddingTop:15, paddingHorizontal:10, flexDirection:'row', justifyContent:"space-between"}}>
                         {/*Search*/}
@@ -61,7 +83,7 @@ export const InformationSingleRoom = ({navigation, route}:any) =>{
                         {/*Personal page */}
                         <TouchableOpacity
                             style={{alignItems:'center'}}
-                            // onPress={}
+                            onPress={handlePersonalPage}
                         >
                             <View style={styles.button}>
                                 <FontAwesomeIcon icon={faUser} size={20} color="black" />
