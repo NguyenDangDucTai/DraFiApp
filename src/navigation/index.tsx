@@ -19,6 +19,8 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import {FindUserScreen} from "../screens/find-user-screen";
 import {CallConnectionScreen} from "../screens/call-connection-screen";
 import {InformationSingleRoom} from "../screens/InformationSingleRoom";
+import {ScanQrCodeScreen} from "../screens/scan-qr-code-screen"
+import ScanQrCodeCompleteScreen from "../screens/scan-qr-code-complete-screen"
 
 
 const Stack = createNativeStackNavigator();
@@ -40,6 +42,8 @@ const Navigation = () => {
                 <Stack.Screen name={ROUTING.ROUTING_CALL_CONNECTION_SCREEN} component={CallConnectionScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_CALL} component={CallScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_INFO_SINGLE_ROOM} component={InformationSingleRoom} options={{ headerShown: false, }}/>
+                <Stack.Screen name={ROUTING.ROUTING_SCAN_QR_CODE_SCREEN} component={ScanQrCodeScreen} options={{ headerShown: false, }}/>
+                <Stack.Screen name={ROUTING.ROUTING_SCAN_QR_CODE_COMPLETE_SCREEN} component={ScanQrCodeCompleteScreen} options={{ headerShown: false, }}/>
                 {/*<Stack.Screen name="InformationGroupRoom" component={InformationGroupRoom} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="AddMember" component={AddMember} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="SeeMembers" component={SeeMembers} options={{ headerShown: false, }}/>*/}

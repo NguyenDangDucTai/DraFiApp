@@ -23,7 +23,7 @@ const SettingUserScreen = ({navigation}: any) =>{
 
     }
     const handleLogout = () =>{
-        navigation.navigate(ROUTING_LOGIN)
+        navigation.navigate(ROUTING_LOGIN, {}, navigation.reset({ index: 0, routes: [{ name: ROUTING_LOGIN }] }));
     }
 
     const handleGoPage = () =>{
