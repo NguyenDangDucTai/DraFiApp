@@ -5,7 +5,12 @@ import {useSelector} from "react-redux";
 import {useEffect, useState} from "react";
 import useListAllChats from "../../api/useListAllChat.ts";
 import {MessageBox} from "../../components/message-box";
-import {ROUTING_CALL, ROUTING_CALL_CONNECTION_SCREEN, ROUTING_ROOM_CHAT} from "../../navigation/path.ts";
+import {
+    ROUTING_CALL,
+    ROUTING_CALL_CONNECTION_SCREEN,
+    ROUTING_ROOM_CHAT,
+    ROUTING_SCAN_QR_CODE_SCREEN
+} from "../../navigation/path.ts";
 
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
 import { faQrcode } from '@fortawesome/free-solid-svg-icons/faQrcode';
@@ -111,9 +116,7 @@ const HomeChatScreen = ({navigation}: any) => {
         // Sự kiện khi người nhận cuộc gọi từ chối
         chatSocket.on("response-cancel-call-private", (data) => {
             console.log('response-cancel-call-private', data);
-            if(chats.map(({chatId}: {chatId: string}) => chatId).includes(data.chatId)) {
-                navigation.goBack();
-            }
+            navigation.goBack();
         });
 
         // Sự kiện khi người gọi hủy cuộc gọi
@@ -164,7 +167,10 @@ const HomeChatScreen = ({navigation}: any) => {
                     placeholder={"Search"}
                     placeholderTextColor={"#EEEEEE"}
                 />
-                <FontAwesomeButton icon={{icon: faQrcode, color: 'white', size: 19}}/>
+                <FontAwesomeButton
+                    icon={{icon: faQrcode, color: 'white', size: 19}}
+                    onClick={() => navigation.navigate(ROUTING_SCAN_QR_CODE_SCREEN)}
+                />
                 <FontAwesomeButton icon={{icon: faPlus, color: 'white', size: 19}}/>
             </View>
 

@@ -7,7 +7,7 @@ import {Button} from "../../components/button";
 import {login} from "../../api/authApi.ts";
 import {useDispatch} from "react-redux";
 import {setUser} from "../../redux/action.ts";
-import {ROUTING_HOME_CHAT, ROUTING_TAB} from "../../navigation/path.ts";
+import {ROUTING_HOME_CHAT} from "../../navigation/path.ts";
 import React from "react";
 import {CheckBox} from "../../components/checkbox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -41,7 +41,10 @@ const LoginScreen = ({navigation}: any) => {
 
                 console.log(res.data.user_info);
                 dispatch(setUser(res.data.user_info));
-                navigation.navigate(ROUTING_TAB);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: ROUTING_HOME_CHAT }]
+                });
             })
             .catch((error) => {
                 console.error(error.response.data);
