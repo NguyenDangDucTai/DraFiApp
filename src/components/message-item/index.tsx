@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 
 import {FontAwesomeButton} from "../fontawesome-button";
 import {styles} from "./styles";
-import {FILE, IMAGE, TEXT} from "../../constants/MessageType.ts";
+import {FILE, IMAGE, REPLY, TEXT} from "../../constants/MessageType.ts";
 import { faFile } from '@fortawesome/free-solid-svg-icons/faFile';
 import { faHeart } from '@fortawesome/free-regular-svg-icons/faHeart';
 
@@ -27,13 +27,16 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick}: { msg: 
             }}>
                 <TouchableOpacity onLongPress={onLongClick}>
                     {msg.type === TEXT && (
-                        <TextContent content={msg.content} isSender={isSender}/>
+                        <TextContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
                     )}
                     {msg.type === IMAGE && (
-                        <ImageContent content={msg.content}/>
+                        <ImageContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
                     )}
                     {msg.type === FILE && (
-                        <FileContent content={msg.content} isSender={isSender}/>
+                        <FileContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                    )}
+                    {msg.type === REPLY && (
+                        <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName}/>
                     )}
                 </TouchableOpacity>
 
@@ -70,7 +73,7 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick}: { msg: 
     )
 }
 
-const TextContent = ({content, isSender}: {content: any, isSender: boolean}) => {
+const TextContent = ({content, isSender, senderName}: {content: any, isSender: boolean, senderName: any}) => {
     return (
         <View style={{
             paddingHorizontal: 15,
@@ -78,7 +81,10 @@ const TextContent = ({content, isSender}: {content: any, isSender: boolean}) => 
             backgroundColor: isSender ? '#c7ecee' : 'white',
             borderRadius: 7,
             position: 'relative',
+            minWidth:70,
+            maxWidth:200,
         }}>
+            {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
             <Text style={{color: "#535c68", }}>
                 {content}
             </Text>
@@ -86,33 +92,46 @@ const TextContent = ({content, isSender}: {content: any, isSender: boolean}) => 
     )
 }
 
-function ImageContent({content}: { content: any }) {
+function ImageContent({content, isSender, senderName}: { content: any, isSender: boolean, senderName: any }) {
     const imageList: string[] = content.split('|').filter((item: string) => item.trim() !== "");
 
     return (
-        <View style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            flexDirection: 'row',
-            gap: 10,
-        }}>
-            {imageList?.map((image: string) => (
-                <Image
-                    key={image}
-                    source={{uri: image}}
-                    style={{width: 100, height: 100, borderRadius: 5, backgroundColor: "#dcdde1"}}
-                />
-            ))}
+        <View>
+            {!isSender &&
+                <Text style={{
+                    color:'black',
+                    marginBottom:5,
+                    padding:5,
+                    borderRadius:5,
+                }}>
+                    {senderName}
+                </Text>
+                }
+            <View style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                flexDirection: 'row',
+                gap: 10,
+            }}>
+                {imageList?.map((image: string) => (
+                    <Image
+                        key={image}
+                        source={{uri: image}}
+                        style={{width: 100, height: 100, borderRadius: 5, backgroundColor: "#dcdde1"}}
+                    />
+                ))}
+            </View>
         </View>
     )
 }
 
 
-function FileContent({content, isSender}: { content: any, isSender: boolean}) {
+function FileContent({content, isSender, senderName}: { content: any, isSender: boolean, senderName:any}) {
     const fileList: string[] = content.split('|').filter((item: string) => item.trim() !== "");
 
     return (
         <View>
+            {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
             {fileList?.map((file: string, index: number) => (
                 <View key={file} style={{
                     flexDirection: 'row',
@@ -139,6 +158,26 @@ function FileContent({content, isSender}: { content: any, isSender: boolean}) {
                     </View>
                 </View>
             ))}
+        </View>
+    )
+}
+
+const TextContentReply = ({content, isSender, senderName}: {content: any, isSender: boolean, senderName: any}) => {
+
+    return (
+        <View style={{
+            paddingHorizontal: 15,
+            paddingVertical: 12,
+            backgroundColor: isSender ? '#c7ecee' : 'white',
+            borderRadius: 7,
+            position: 'relative',
+            minWidth:70,
+            maxWidth:200,
+        }}>
+            {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
+            <Text style={{color: "#535c68", }}>
+                {content}
+            </Text>
         </View>
     )
 }

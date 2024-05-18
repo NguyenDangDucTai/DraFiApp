@@ -15,3 +15,4 @@ export const ROUTING_FIND_USER = "FindUser";
 export const ROUTING_INFO_GROUP_ROOM = "InfoGroupRoom";
 export const ROUTING_INFO_SINGLE_ROOM = "InfoSingleRoom";
 export const ROUTING_PERSONAL_PAGE = "PersonalPage";
+export const ROUTING_SHARE_MESSAGE_SCREEN = "ShareMessageScreen";

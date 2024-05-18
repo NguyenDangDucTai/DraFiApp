@@ -12,8 +12,6 @@ const MessageBox = ({ item, user, onClick }: { item: RoomChat, user: any, onClic
 
     const latestMessage = item.getLatestMessage();
     const participantIndex = item.participants.indexOf(userId);
-    // console.log("Partic index",participantIndex)
-
 
     let avatar : string | undefined;
     if(item.type === "public"){
@@ -54,6 +52,7 @@ const MessageBox = ({ item, user, onClick }: { item: RoomChat, user: any, onClic
                 {/*    12*/}
                 {/*</Text>*/}
             </View>
+
 
         </TouchableOpacity>
 

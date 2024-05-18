@@ -12,7 +12,6 @@ import { faVideo } from '@fortawesome/free-solid-svg-icons/faVideo';
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons/faEllipsis';
-
 import { faFaceSmile } from '@fortawesome/free-regular-svg-icons/faFaceSmile';
 import { faImages } from '@fortawesome/free-regular-svg-icons/faImages';
 
@@ -29,7 +28,7 @@ import {
     ROUTING_CALL,
     ROUTING_CALL_CONNECTION_SCREEN,
     ROUTING_INFO_SINGLE_ROOM,
-    ROUTING_ROOM_CHAT
+    ROUTING_ROOM_CHAT, ROUTING_SHARE_MESSAGE_SCREEN
 } from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
@@ -39,6 +38,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const { chatId } = route.params;
     const user = useSelector((state: any) => state.userData);
     const userId = user.id;
+    const userAvatar = user.avatar;
     const displayName = user.display_name;
 
     const { messages } = useListAllMessage(chatId);
@@ -64,7 +64,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
             messageId: uuidv4(),
             senderId: userId,
             senderName: displayName,
-            senderPicture: 'https://vn.portal-pokemon.com/play/resources/pokedex/img/pm/5794f0251b1180998d72d1f8568239620ff5279c.png',
+            senderPicture: userAvatar,
             type: MESSAGE_TYPE.TEXT,
             content: message,
             timestamp: Date.now()
@@ -171,6 +171,8 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         scrollViewRef.current.scrollToEnd({ animated: true });
     }, [messages]);
 
+
+
     return (
         <View style={styles.container}>
             <View style={styles.title}>
@@ -254,12 +256,14 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                             style={{
                                 flex: 1,
                                 fontSize: 15,
-                                padding: 0
+                                padding: 0,
+                                color:'black'
                             }}
                             value={message}
                             numberOfLines={2}
                             multiline={true}
                             placeholder={"Nhập tin nhắn"}
+                            placeholderTextColor={"#BBBBBB"}
                             onChangeText={setMessage}
                             // onFocus={() => {
                             //     setopenEmoji(false);
@@ -392,6 +396,10 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                     icon={require('../../assets/icon-share.png')}
                                     iconPosition={"left"}
                                     iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                    onClick={()=>{
+                                        setMessageModalShow(null)
+                                        navigation.navigate(ROUTING_SHARE_MESSAGE_SCREEN, {msg: messageModalShow.msg})
+                                    }}
                                 />
                                 <Button
                                     style={{ paddingVertical: 10, paddingHorizontal: 20 }}
@@ -416,6 +424,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                     icon={require('../../assets/icon-pin.png')}
                                     iconPosition={"left"}
                                     iconStyle={{width: 30, height: 30, margin: 'auto'}}
+
                                 />
                                 <Button
                                     style={{ paddingVertical: 10, paddingHorizontal: 20 }}

@@ -22,6 +22,7 @@ import {InformationSingleRoom} from "../screens/info-single-room-screen";
 import {ScanQrCodeScreen} from "../screens/scan-qr-code-screen"
 import ScanQrCodeCompleteScreen from "../screens/scan-qr-code-complete-screen"
 import {PersonalPageScreen} from "../screens/personal-page-screen";
+import ShareMessageScreen from "../screens/share-message-screen";
 
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,7 @@ const Navigation = () => {
                 <Stack.Screen name={ROUTING.ROUTING_FRIEND_REQUEST} component={FriendRequestScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_PERSONAL_PAGE} component={PersonalPageScreen} options={{ headerShown: false, }}/>
                 <Stack.Screen name={ROUTING.ROUTING_FIND_USER} component={FindUserScreen} options={{ headerShown: false, }}/>
+                <Stack.Screen name={ROUTING.ROUTING_SHARE_MESSAGE_SCREEN} component={ShareMessageScreen} options={{ headerShown: false, }}/>
                 {/*<Stack.Screen name="SettingUser" component={SettingUser} options={{ headerShown: false, }}/>*/}
                 {/*<Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false, }}/>*/}
                 <Stack.Screen name={ROUTING.ROUTING_CREATE_NEW_GROUP} component={CreateNewGroupScreen} options={{ headerShown: false, }}/>
