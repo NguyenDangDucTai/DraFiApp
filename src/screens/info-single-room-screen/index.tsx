@@ -5,6 +5,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
 import { faBell } from '@fortawesome/free-solid-svg-icons/faBell';
+import { faImage } from '@fortawesome/free-solid-svg-icons/faImage';
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import ScrollView = Animated.ScrollView;
 import {RoomChat} from "../../models/RoomChat.ts";
@@ -14,13 +15,10 @@ import {ROUTING_PERSONAL_PAGE} from "../../navigation/path.ts";
 export const InformationSingleRoom = ({navigation, route}:any) =>{
 
     const {item, user} = route.params;
-    console.log("day la room chat", item)
-
     const userId = user.id;
-
-
     const participantIndex = item.participants.indexOf(userId);
-    // console.log("Partic index",participantIndex)
+    const friendId = item.participants.filter(item => item !== userId);
+
 
 
     let avatar : string | undefined;
@@ -33,8 +31,11 @@ export const InformationSingleRoom = ({navigation, route}:any) =>{
 
 
     const handlePersonalPage =()=>{
-        navigation.navigate(ROUTING_PERSONAL_PAGE, {userId: item.participants[participantIndex]});
+        navigation.navigate(ROUTING_PERSONAL_PAGE, {userId: friendId});
     }
+
+    const listImage = item.messages;
+    console.log("Message", listImage)
 
 
     return(
@@ -118,6 +119,20 @@ export const InformationSingleRoom = ({navigation, route}:any) =>{
                                 <Text style={{color:'black'}}>notification</Text>
                             </View>
                         </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/*Image and file View*/}
+                <View style={styles.listImageFile}>
+                    <View style={{flexDirection:"row", alignItems:'center'}}>
+                        <FontAwesomeIcon icon={faImage} size={20} color="black" />
+                        <Text style={{color:'black', marginLeft:10, fontSize:16, fontWeight:'bold'}}>
+                            Image and File
+                        </Text>
+                    </View>
+                    <View style={{marginTop:5, flexDirection:'row', justifyContent:'flex-start'}}>
+                        <Image source={require("../../assets/nobita.png")} style={{width:60, height:60, marginRight:10, borderRadius:10}}/>
+
                     </View>
                 </View>
             </ScrollView>

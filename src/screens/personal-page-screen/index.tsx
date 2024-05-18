@@ -12,7 +12,7 @@ export const PersonalPageScreen = ({navigation, route}:any)=>{
 
     const checkFriend  = false;
     const {userId} = route.params;
-    const user = useGetUserInfo((userId)).userInfo;
+    const user = useGetUserInfo((userId));
     console.log("User personal page", user)
 
     const handleChat = ()  =>{
@@ -49,12 +49,12 @@ export const PersonalPageScreen = ({navigation, route}:any)=>{
             <View style={styles.avatarView}>
                 <View style={styles.behindAvatar}>
                     <Image
-                        source={{uri: user.avatar}}
+                        source={{uri: user.userInfo.avatar}}
                         style={{width: 100, height: 100, borderRadius:100}}
                     />
                 </View>
                 <Text style={{fontWeight:'bold', fontSize:20, color:'black'}}>
-                    {user.display_name}
+                    {user.userInfo.display_name}
                 </Text>
                 <View style={{flexDirection:'row'}}>
                     {!checkFriend?(
