@@ -112,6 +112,25 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
     const handleCancelCall = () => {
         console.log('Cancel call');
+
+        const incomingVoiceCall = {
+            receiveId: roomChat?.getReceiverId(userId),
+            senderId: user?.id,
+            senderPicture: user?.avatar,
+            senderName: user?.display_name,
+            receiveName: roomChat?.getDisplayName(userId),
+            receivePicture: roomChat?.picture,
+            chatId: roomChat?.chatId,
+        };
+
+        chatSocket.emit("request-end-voice-call", {
+            senderId: userId,
+            receiveId:
+                incomingVoiceCall.senderId == userId
+                    ? incomingVoiceCall.receiveId
+                    : incomingVoiceCall.senderId,
+        });
+
         navigation.goBack();
     }
 

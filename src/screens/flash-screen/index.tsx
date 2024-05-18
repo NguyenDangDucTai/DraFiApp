@@ -21,6 +21,10 @@ const FlashScreen = ({navigation}: any) => {
             })
             .catch((error) => {
                 console.error(error.response.data);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: ROUTING_LOGIN }]
+                });
             })
     }
 

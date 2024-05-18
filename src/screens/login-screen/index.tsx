@@ -41,7 +41,10 @@ const LoginScreen = ({navigation}: any) => {
 
                 console.log(res.data.user_info);
                 dispatch(setUser(res.data.user_info));
-                navigation.navigate(ROUTING_HOME_CHAT);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: ROUTING_HOME_CHAT }]
+                });
             })
             .catch((error) => {
                 console.error(error.response.data);
