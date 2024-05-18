@@ -7,6 +7,7 @@ import {faUserGroup} from "@fortawesome/free-solid-svg-icons/faUserGroup"
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {MessageBox} from "../message-box";
 import {ROUTING_ROOM_CHAT} from "../../navigation/path.ts";
+import {RoomChat} from "../../models/RoomChat.ts";
 
 
 export const GroupsComponent = ({navigation}: any)=>{
@@ -39,29 +40,17 @@ export const GroupsComponent = ({navigation}: any)=>{
             </TouchableOpacity>
 
             <View>
-                {listGroups && listGroups.map((item: any) => {
+                {listGroups && listGroups.map((item: RoomChat) => {
                     let chatName = item.name;
                     let latestMessage = item?.messages && item?.messages?.length > 0 ? item.messages[item.messages.length - 1] : null;
 
-                    console.log( item)
+                    console.log(item)
                     return(
                         <MessageBox
-                            item={{
-                                id: item.chatId,
-                                displayName: chatName,
-                                image: item.picture,
-                                content: latestMessage,
-                                type: item.type,
-                            }}
-                            navigation={navigation}
+                            item={new RoomChat(item)}
+                            user={user}
                             key={item.chatId}
-                            onClick={() => {
-                                navigation.navigate(ROUTING_ROOM_CHAT, {
-                                    chatId: item.chatId,
-                                    roomName: chatName,
-                                    type: item.type,
-                                })
-                            }}
+                            onClick={() => navigation.navigate(ROUTING_ROOM_CHAT, { chatId: item.chatId })}
                         />
                     )
                 })}

@@ -169,7 +169,9 @@ const HomeChatScreen = ({navigation}: any) => {
             </View>
 
             <View style={styles.body}>
-                <ScrollView>
+                <ScrollView
+                    keyboardDismissMode={"on-drag"}
+                >
                     {participants?.map((item: RoomChat) => (
                         <MessageBox
                             key={item.chatId}

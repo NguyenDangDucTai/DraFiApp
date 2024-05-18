@@ -25,7 +25,12 @@ import {FontAwesomeButton} from "../../components/fontawesome-button";
 import {EmojisMessage} from "../../components/emojis-message";
 import {Button} from "../../components/button";
 import {EmojiKeyboard} from "rn-emoji-keyboard";
-import {ROUTING_CALL, ROUTING_CALL_CONNECTION_SCREEN, ROUTING_ROOM_CHAT} from "../../navigation/path.ts";
+import {
+    ROUTING_CALL,
+    ROUTING_CALL_CONNECTION_SCREEN,
+    ROUTING_INFO_SINGLE_ROOM,
+    ROUTING_ROOM_CHAT
+} from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
 
@@ -131,6 +136,13 @@ const RoomChatScreen = ({ route, navigation }: any) => {
             })
     }, [chatId]);
 
+    const typeRoom = roomChat?.type
+    const handleMenu = ()=>{
+        if(typeRoom === 'private'){
+            navigation.navigate(ROUTING_INFO_SINGLE_ROOM, {roomChat: roomChat });
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.title}>
@@ -174,6 +186,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                         size: 20,
                         color: "white"
                     }}
+                    onClick={()=>handleMenu()}
                 />
             </View>
 

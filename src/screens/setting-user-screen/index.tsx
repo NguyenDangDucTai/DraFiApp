@@ -109,7 +109,7 @@ const SettingUserScreen = ({navigation}: any) =>{
                 </TouchableOpacity>
 
 
-                <View style={[styles.button, {marginTop:10, padding:20}]}>
+                <View style={[styles.buttonViewLogout, {marginTop:10, padding:20}]}>
                     <TouchableOpacity
                         style={styles.buttonLogOut}
                         onPress={handleLogout}

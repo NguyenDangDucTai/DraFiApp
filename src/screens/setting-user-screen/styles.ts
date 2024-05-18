@@ -30,7 +30,14 @@ const styles = StyleSheet.create({
 
     },
     button:{
-        height:70,
+        height:60,
+        backgroundColor:'white',
+        flexDirection:'row',
+        alignItems:'center',
+        paddingLeft:20
+    },
+    buttonViewLogout:{
+        height:100,
         backgroundColor:'white',
         flexDirection:'row',
         alignItems:'center',

@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useEffect} from "react";
 import {login} from "../../api/authApi.ts";
 import {setUser} from "../../redux/action.ts";
-import {ROUTING_HOME_CHAT, ROUTING_LOGIN} from "../../navigation/path.ts";
+import {ROUTING_HOME_CHAT, ROUTING_LOGIN, ROUTING_TAB} from "../../navigation/path.ts";
 import {useDispatch} from "react-redux";
 import {DRAFI_APP_LOGIN} from "../../constants/LocalStorageKey.ts";
 
@@ -16,7 +16,7 @@ const FlashScreen = ({navigation}: any) => {
                 dispatch(setUser(res.data.user_info));
                 navigation.reset({
                     index: 0,
-                    routes: [{ name: ROUTING_HOME_CHAT }]
+                    routes: [{ name: ROUTING_TAB }]
                 });
             })
             .catch((error) => {
