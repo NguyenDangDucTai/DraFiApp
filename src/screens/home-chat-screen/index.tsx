@@ -22,7 +22,6 @@ import {LIST_ALL_CHATS, LIST_ALL_MESSAGES} from "../../constants/QueryKey.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {RoomType} from "../../models/RoomType.ts";
-
 const HomeChatScreen = ({navigation}: any) => {
     const queryClient = useQueryClient();
     const user = useSelector((state: any) => state.userData);
@@ -157,6 +156,8 @@ const HomeChatScreen = ({navigation}: any) => {
         //     });
         // }
     }, []);
+
+
 
     return (
         <View style={styles.container}>

@@ -6,6 +6,7 @@ import {setUser} from "../../redux/action.ts";
 import {ROUTING_HOME_CHAT, ROUTING_LOGIN, ROUTING_TAB} from "../../navigation/path.ts";
 import {useDispatch} from "react-redux";
 import {DRAFI_APP_LOGIN} from "../../constants/LocalStorageKey.ts";
+import RNFS from 'react-native-fs';
 
 const FlashScreen = ({navigation}: any) => {
     const dispatch = useDispatch();
@@ -44,6 +45,22 @@ const FlashScreen = ({navigation}: any) => {
 
         getLoginInfo();
     }, []);
+
+    const directoryPath = RNFS.DocumentDirectoryPath;
+    console.log("path ne: ", directoryPath)
+
+// Đọc danh sách tệp tin trong thư mục
+    RNFS.readDir(directoryPath)
+        .then((result) => {
+            // Lọc ra các tệp tin có đuôi .jpg
+            const jpgFiles = result.filter((file) => file.name.endsWith('.jpg'));
+
+            // Log danh sách các tệp tin .jpg
+            console.log("file nè: ", jpgFiles);
+        })
+        .catch((error) => {
+            console.error(error);
+        });
 
     return (
         <View style={{

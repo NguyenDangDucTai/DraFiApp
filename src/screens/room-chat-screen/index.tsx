@@ -33,6 +33,9 @@ import {
 } from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
+import {IMAGE, SHARE} from "../../constants/MessageType.ts";
+import {ImagePickerResponse, launchImageLibrary} from "react-native-image-picker";
+import {chatServiceApi} from "../../api/axiosConfig.ts";
 
 
 
@@ -64,16 +67,30 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
         console.log('Send message: ', message);
         console.log('send message success');
+        const time = Date.now()
+        const messageId = uuidv4()
         sendMessage({
             chatId: chatId,
-            messageId: uuidv4(),
+            messageId: messageId,
             senderId: userId,
             senderName: displayName,
             senderPicture: userAvatar,
             type: typeSendMessage,
             content: message,
-            timestamp: Date.now()
+            timestamp: time
         });
+        chatSocket.emit("send-msg-private", {
+            receiverId: chatId,
+            newMessage:{
+                messageId: messageId,
+                senderId: userId,
+                senderName: displayName,
+                senderPicture: userAvatar,
+                type: typeSendMessage,
+                content: message,
+                timestamp: time
+            }
+        })
         setMessage("");
         setShowReply(false);
     }
@@ -176,6 +193,49 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         // @ts-ignore
         scrollViewRef.current.scrollToEnd({ animated: true });
     }, [messages]);
+
+
+    const [selectedImage, setSelectedImage] = useState<ImagePickerResponse| null>(null);
+    const importImage = async () => {
+        await launchImageLibrary({ presentationStyle: "fullScreen" }, async (response: ImagePickerResponse) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error:', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button:', response.customButton);
+            } else {
+                // Set the selected image
+                setSelectedImage(response);
+                console.log(response);
+
+                const formData = new FormData();// Tạo đối tượng File từ URI của hình ảnh
+                formData.append("image", selectedImage);
+
+                console.log("logne", formData);
+
+                await chatServiceApi.post(`/${chatId}/images`, {
+                        formData,
+                        newMessage: {
+                            messageId: uuidv4(),
+                            senderId: userId,
+                            senderName: displayName,
+                            senderPicture: userAvatar,
+                            type: IMAGE,
+                            timestamp: Date.now(),
+                        },
+                    })
+                    .then((response) => {
+                        console.log("Yes");
+                    })
+                    .catch((err) => {
+                        console.error("error", err);
+                    });
+
+                // console.log("123123");
+            }
+        });
+    };
 
 
 
@@ -317,7 +377,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                 size: 20,
                                 color: "gray"
                             }}
-                            // onClick={handleSendMessage}
+                            onClick={importImage}
                         />
                         <FontAwesomeButton
                             icon={{

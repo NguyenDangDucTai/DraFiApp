@@ -33,6 +33,7 @@ export const sendMessage = async (
     }
 }
 
+
 export const listAllAddFriendRequestReceived = async (userId: string) => {
     try {
         return await notificationServiceApi.get(`/getListReceiverRequest/${userId}`);
