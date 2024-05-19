@@ -4,11 +4,14 @@ import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 
 import {FontAwesomeButton} from "../fontawesome-button";
 import {styles} from "./styles";
-import {FILE, IMAGE, REPLY, TEXT} from "../../constants/MessageType.ts";
+import {FILE, IMAGE, REPLY, SHARE, TEXT} from "../../constants/MessageType.ts";
 import { faFile } from '@fortawesome/free-solid-svg-icons/faFile';
 import { faHeart } from '@fortawesome/free-regular-svg-icons/faHeart';
+import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons/faShareFromSquare';
 
-function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any }) {
+function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any, messages:any }) {
+
+    const foundMessageReply = messages.find((item) => item.messageId === msg.messageId);
     return (
         <View
             style={{
@@ -36,7 +39,10 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick}: { msg: 
                         <FileContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
                     )}
                     {msg.type === REPLY && (
-                        <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                        <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName} foundMessageReply={foundMessageReply}/>
+                    )}
+                    {msg.type.includes(SHARE) &&(
+                        <ShareContent content={msg.content} isSender={isSender} senderName={msg.senderName} msg={msg}/>
                     )}
                 </TouchableOpacity>
 
@@ -162,7 +168,64 @@ function FileContent({content, isSender, senderName}: { content: any, isSender: 
     )
 }
 
-const TextContentReply = ({content, isSender, senderName}: {content: any, isSender: boolean, senderName: any}) => {
+const TextContentReply = ({content, isSender, senderName, foundMessageReply}: {content: any, isSender: boolean, senderName: any, foundMessageReply:any}) => {
+    return (
+        <View style={{
+            paddingHorizontal: 15,
+            paddingVertical: 12,
+            backgroundColor: isSender ? '#c7ecee' : 'white',
+            borderRadius: 7,
+            position: 'relative',
+            minWidth:70,
+            maxWidth:200,
+        }}>
+            <View style={{
+                marginBottom:5,
+                padding:10,
+                paddingRight:20,
+                backgroundColor:"#70b9dc",
+                flexDirection: 'row',
+                borderRadius:10,
+            }}>
+                <View
+                    style={{
+                        paddingHorizontal: 2,
+                        backgroundColor:'#488bcc',
+                        marginRight:10,
+                        borderRadius:10,
+                    }}
+                />
+                {foundMessageReply.type === TEXT && (
+                    <View>
+                        {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
+                        <Text style={{color: "#535c68", }}>
+                            {foundMessageReply.content}
+                        </Text>
+                    </View>
+                )}
+                {foundMessageReply.type === IMAGE && (
+                    <ImageContent content={foundMessageReply.content} isSender={isSender} senderName={foundMessageReply.senderName}/>
+                )}
+                {foundMessageReply.type === FILE && (
+                    <FileContent content={foundMessageReply.content} isSender={isSender} senderName={foundMessageReply.senderName}/>
+                )}
+            </View>
+            {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
+            <Text style={{color: "#535c68", }}>
+                {content}
+            </Text>
+        </View>
+    )
+}
+
+const ShareContent = ({content, isSender, senderName, msg}: {content: any, isSender: boolean, senderName: any, msg:any}) => {
+    let bc: string;
+    if (isSender) {
+        bc = "You've forwarded a message"
+    } else {
+        bc = "Your friend forwarded a message"
+    }
+
 
     return (
         <View style={{
@@ -174,12 +237,38 @@ const TextContentReply = ({content, isSender, senderName}: {content: any, isSend
             minWidth:70,
             maxWidth:200,
         }}>
-            {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
-            <Text style={{color: "#535c68", }}>
-                {content}
-            </Text>
+            <View style={{flexDirection:'row', alignItems:'center', marginBottom:5}}>
+
+                <FontAwesomeIcon icon={faShareFromSquare} size={10} color={"#AAAAAA"} style={{marginRight:5}}/>
+                <Text style={{color:'#AAAAAA', fontSize:10}}>
+                    {bc}
+                </Text>
+            </View>
+            {msg.type.includes(TEXT) && (
+                <View>
+                    {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
+                    <Text style={{color: "#535c68", }}>
+                        {content}
+                    </Text>
+                </View>
+            )}
+            {msg.type.includes(IMAGE) && (
+                <ImageContent content={content} isSender={isSender} senderName={senderName}/>
+            )}
+            {msg.type.includes(FILE) && (
+                <FileContent content={content} isSender={isSender} senderName={senderName}/>
+            )}
+            {msg.type.includes(REPLY) && (
+                <View>
+                    {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
+                    <Text style={{color: "#535c68", }}>
+                        {content}
+                    </Text>
+                </View>
+            )}
         </View>
     )
 }
+
 
 export {MessageItem}

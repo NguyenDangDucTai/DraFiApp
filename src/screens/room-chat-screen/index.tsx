@@ -32,6 +32,7 @@ import {
 } from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
+import {faXmark} from "@fortawesome/free-solid-svg-icons/faXmark";
 
 
 const RoomChatScreen = ({ route, navigation }: any) => {
@@ -48,9 +49,12 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         allowSendMessage: true,
     });
     const [emojiMessageModalShow, setEmojiMessageModalShow] = useState<any>();
-    const [messageModalShow, setMessageModalShow] = useState<any>();
+    const [messageModalShow, setMessageModalShow] = useState<any>(null);
+    const [messageReply, setMessageReply] = useState<any>(null);
     const [emojiPanelShow, setEmojiPanelShow] = useState(false);
     const [roomChat, setRoomChat] = useState<RoomChat>();
+    const [showReply, setShowReply] = useState(false);
+    const [typeSendMessage, setTypeSendMessage] = useState(MESSAGE_TYPE.TEXT)
 
     const sendMessage = useSendMessage(chatId);
 
@@ -65,11 +69,12 @@ const RoomChatScreen = ({ route, navigation }: any) => {
             senderId: userId,
             senderName: displayName,
             senderPicture: userAvatar,
-            type: MESSAGE_TYPE.TEXT,
+            type: typeSendMessage,
             content: message,
             timestamp: Date.now()
         });
         setMessage("");
+        setShowReply(false);
     }
 
     const handleBtnCallClick = (callType: string) => {
@@ -228,6 +233,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                     <MessageItem
                         key={item.messageId}
                         msg={item}
+                        messages={messages}
                         isSender={item.senderId === userId}
                         onHeartIconLongClick={() => setEmojiMessageModalShow({
                             msg: item,
@@ -241,6 +247,32 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                 ))}
             </ScrollView>
 
+            {showReply  && (
+                <View
+                    style={styles.replyMsg}
+                >
+                    <View
+                        style={{backgroundColor:'#00a8ff', borderRadius:10, paddingHorizontal:2, marginRight:10}}
+                    />
+                    <View
+                        style={{flex:1, marginRight:5}}
+                    >
+                        <Text style={{fontSize: 13, color: 'black', fontWeight:'bold', marginBottom:10}}>
+                            Name
+                        </Text>
+                        <Text style={{fontSize:13, color: '#AAAAAA'}}>
+                            {messageReply.msg.content}
+                        </Text>
+                    </View>
+                    <FontAwesomeButton
+                        icon={{icon: faXmark, size:30, color:"#AAAAAA"}}
+                        onClick={()=>{
+                            setTypeSendMessage(MESSAGE_TYPE.TEXT)
+                            setShowReply(false)
+                        }}
+                    />
+                </View>
+            )}
             <View style={styles.textInputChat}>
                 {(settingGroup.allowSendMessage || mangerId === userId) ? (
                     <>
@@ -367,7 +399,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                 >
                     <TouchableWithoutFeedback>
                         <View>
-                            {messageModalShow && (<MessageItem msg={messageModalShow.msg} isSender={messageModalShow.isSender}/>)}
+                            {messageModalShow && (<MessageItem msg={messageModalShow.msg} isSender={messageModalShow.isSender} messages={messages}/>)}
                             <EmojisMessage onClick={(emojiCode: string) => console.log('emojiCode', emojiCode)}/>
                             <View style={{
                                 flexWrap: 'wrap',
@@ -388,6 +420,17 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                     icon={require('../../assets/icon-reply.png')}
                                     iconPosition={"left"}
                                     iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                    onClick={()=>{
+                                        setMessageReply(messageModalShow)
+                                        setMessageReply(messageModalShow)
+                                        setMessageReply(messageModalShow)
+                                        setTypeSendMessage(MESSAGE_TYPE.REPLY)
+                                        setTypeSendMessage(MESSAGE_TYPE.REPLY)
+                                        console.log(messageModalShow)
+                                        setMessageModalShow(null)
+                                        console.log("Msg reply", messageReply)
+                                        setShowReply(true)
+                                    }}
                                 />
                                 <Button
                                     style={{ paddingVertical: 10, paddingHorizontal: 20 }}

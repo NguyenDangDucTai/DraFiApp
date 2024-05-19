@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
         alignItems:'center',
         backgroundColor: 'white',
         paddingVertical: 8,
-        marginTop: 10,
         borderTopWidth: 1,
         borderTopColor: '#f5f6fa',
         borderBottomWidth: 1,
@@ -98,6 +97,12 @@ const styles = StyleSheet.create({
         borderRadius:100,
         width:20,
         height:20,
+    },
+    replyMsg:{
+        backgroundColor:'white',
+        padding:15,
+        borderBottomWidth:1,
+        flexDirection:"row",
     }
 
 
