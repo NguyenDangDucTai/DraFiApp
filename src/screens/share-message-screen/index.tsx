@@ -16,6 +16,8 @@ import {SHARE, TEXT} from "../../constants/MessageType.ts";
 import {useSendMessage} from "../../api/useSendMessage.ts";
 import {v4 as uuidv4} from "uuid";
 import * as MESSAGE_TYPE from "../../constants/MessageType.ts";
+import {chatServiceApi} from "../../api/axiosConfig.ts";
+import {chatSocket} from "../../configs/SocketIOConfig.ts";
 
 const ShareMessageScreen =({navigation, route}:any) =>{
 
@@ -41,18 +43,32 @@ const ShareMessageScreen =({navigation, route}:any) =>{
         listUserShare.map(item => {
             // @ts-ignore
             const chatId = item.chatId;
+            const time = Date.now();
             console.log(chatId)
-            const sendMessage = useSendMessage(chatId);
-            sendMessage({
-                chatId: chatId,
-                messageId: uuidv4(),
-                senderId: userId,
-                senderName: displayName,
-                senderPicture: userAvatar,
-                type: MESSAGE_TYPE.TEXT,
-                content: msg.content,
-                timestamp: Date.now()
-            });
+            chatServiceApi.put(`/${chatId}/messages`, {
+                newMessage:{
+                    messageId: uuidv4(),
+                    senderId: userId,
+                    senderName: displayName,
+                    senderPicture: userAvatar,
+                    type: SHARE + " " + msg.type,
+                    content: msg.content,
+                    timestamp: time
+                }
+            })
+
+            chatSocket.emit("send-msg-private", {
+                receiverId: chatId,
+                newMessage:{
+                    senderId: userId,
+                    senderName: displayName,
+                    senderPicture: userAvatar,
+                    type: SHARE + " " + msg.type,
+                    content: msg.content,
+                    timestamp: time
+                }
+            })
+
         })
         navigation.goBack()
     }

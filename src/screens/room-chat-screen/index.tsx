@@ -14,6 +14,7 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons/faPaperPlane';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons/faEllipsis';
 import { faFaceSmile } from '@fortawesome/free-regular-svg-icons/faFaceSmile';
 import { faImages } from '@fortawesome/free-regular-svg-icons/faImages';
+import {faXmark} from "@fortawesome/free-solid-svg-icons/faXmark";
 
 import * as MESSAGE_TYPE from "../../constants/MessageType.ts";
 import {firestore} from "../../configs/FirebaseConfig.ts";
@@ -32,7 +33,7 @@ import {
 } from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
-import {faXmark} from "@fortawesome/free-solid-svg-icons/faXmark";
+
 
 
 const RoomChatScreen = ({ route, navigation }: any) => {
@@ -237,11 +238,11 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                         isSender={item.senderId === userId}
                         onHeartIconLongClick={() => setEmojiMessageModalShow({
                             msg: item,
-                            isSender: item.senderId === userId
+                            isSender: item.senderId === userId,
                         })}
                         onLongClick={() => setMessageModalShow({
                             msg: item,
-                            isSender: item.senderId === userId
+                            isSender: item.senderId === userId,
                         })}
                     />
                 ))}
@@ -372,7 +373,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                 >
                     <TouchableWithoutFeedback>
                         <View>
-                            {emojiMessageModalShow && (<MessageItem msg={emojiMessageModalShow.msg} isSender={emojiMessageModalShow.isSender}/>)}
+                            {emojiMessageModalShow && (<MessageItem msg={emojiMessageModalShow.msg} isSender={emojiMessageModalShow.isSender} messages={messages}/>)}
                             <EmojisMessage onClick={(emojiCode: string) => console.log('emojiCode', emojiCode)}/>
                         </View>
                     </TouchableWithoutFeedback>
