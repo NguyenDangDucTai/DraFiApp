@@ -12,7 +12,7 @@ import {RoomChat} from "../../models/RoomChat.ts";
 import {faCheck} from "@fortawesome/free-solid-svg-icons/faCheck";
 import {faPaperPlane} from "@fortawesome/free-solid-svg-icons/faPaperPlane";
 import {faP} from "@fortawesome/free-solid-svg-icons";
-import {TEXT} from "../../constants/MessageType.ts";
+import {SHARE, TEXT} from "../../constants/MessageType.ts";
 import {useSendMessage} from "../../api/useSendMessage.ts";
 import {v4 as uuidv4} from "uuid";
 import * as MESSAGE_TYPE from "../../constants/MessageType.ts";
@@ -146,7 +146,7 @@ const ShareMessageScreen =({navigation, route}:any) =>{
                             <Text style={{color:'black', fontSize:18, fontWeight:'bold', marginBottom:5}}>
                                 Content
                             </Text>
-                            {msg.type === TEXT && (
+                            {(msg.type.includes(TEXT)||msg.type.includes(SHARE) ) && (
                                 <Text style={{color:'black'}}>
                                     {msg.content.length > 100 ? msg.content.substring(0, 100) + '...' : msg.content}
                                 </Text>
