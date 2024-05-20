@@ -40,14 +40,14 @@ const ShareMessageScreen =({navigation, route}:any) =>{
 
     const handleShare = () =>{
         // console.log(listUserShare)
-        listUserShare.map(item => {
+        listUserShare.map((item: RoomChat) => {
             // @ts-ignore
             const chatId = item.chatId;
             const time = Date.now();
-            console.log(chatId)
+            const messageId = uuidv4();
             chatServiceApi.put(`/${chatId}/messages`, {
                 newMessage:{
-                    messageId: uuidv4(),
+                    messageId: messageId,
                     senderId: userId,
                     senderName: displayName,
                     senderPicture: userAvatar,
@@ -56,18 +56,41 @@ const ShareMessageScreen =({navigation, route}:any) =>{
                     timestamp: time
                 }
             })
+            if(item.type === "private"){
+                const index = item.participants.indexOf(userId)
+                const receiverId = item.participants[index === 0 ? 1 : 0]
+                console.log("user id", userId)
+                console.log("Room chat data", receiverId);
+                chatSocket.emit("send-msg-private", {
+                    receiveId: receiverId,
+                    newMessage:{
+                        messageId: messageId,
+                        senderId: userId,
+                        senderName: displayName,
+                        senderPicture: userAvatar,
+                        type: SHARE + " " + msg.type,
+                        content: msg.content,
+                        timestamp: time
+                    }
+                })
+                console.log("Success emit")
+            }
+            if(item.type === "public"){
+                chatSocket.emit("send-msg-public", chatId,{
+                    receiveId: item.participants.filter((a) => a !== userId),
+                    newMessage:{
+                        messageId: messageId,
+                        senderId: userId,
+                        senderName: displayName,
+                        senderPicture: userAvatar,
+                        type: SHARE + " " + msg.type,
+                        content: msg.content,
+                        timestamp: time
+                    }
+                })
+            }
 
-            chatSocket.emit("send-msg-private", {
-                receiverId: chatId,
-                newMessage:{
-                    senderId: userId,
-                    senderName: displayName,
-                    senderPicture: userAvatar,
-                    type: SHARE + " " + msg.type,
-                    content: msg.content,
-                    timestamp: time
-                }
-            })
+
 
         })
         navigation.goBack()

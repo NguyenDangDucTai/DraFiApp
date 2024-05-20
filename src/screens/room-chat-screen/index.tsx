@@ -64,9 +64,6 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
     const handleSendMessage = () =>{
         if(message.trim() === "") return;
-
-        console.log('Send message: ', message);
-        console.log('send message success');
         const time = Date.now()
         const messageId = uuidv4()
         sendMessage({
@@ -77,20 +74,38 @@ const RoomChatScreen = ({ route, navigation }: any) => {
             senderPicture: userAvatar,
             type: typeSendMessage,
             content: message,
-            timestamp: time
+            timestamp: time,
         });
-        chatSocket.emit("send-msg-private", {
-            receiverId: chatId,
-            newMessage:{
-                messageId: messageId,
-                senderId: userId,
-                senderName: displayName,
-                senderPicture: userAvatar,
-                type: typeSendMessage,
-                content: message,
-                timestamp: time
-            }
-        })
+        if(roomChat?.type === "private"){
+            const receiverID = roomChat?.getReceiverId(userId);
+            chatSocket.emit("send-msg-private", {
+                receiveId: receiverID,
+                newMessage:{
+                    messageId: messageId,
+                    senderId: userId,
+                    senderName: displayName,
+                    senderPicture: userAvatar,
+                    type: typeSendMessage,
+                    content: message,
+                    timestamp: time,
+                }
+            })
+        }
+        if(roomChat?.type === "public"){
+            const receiverID = roomChat?.getReceiverId(userId);
+            chatSocket.emit("send-msg-public", chatId,{
+                receiveId: roomChat.participants.filter((item) => item !== userId),
+                newMessage:{
+                    messageId: messageId,
+                    senderId: userId,
+                    senderName: displayName,
+                    senderPicture: userAvatar,
+                    type: typeSendMessage,
+                    content: message,
+                    timestamp: time,
+                }
+            })
+        }
         setMessage("");
         setShowReply(false);
     }

@@ -184,7 +184,10 @@ const HomeChatScreen = ({navigation}: any) => {
                             key={item.chatId}
                             item={new RoomChat(item)}
                             user={user}
-                            onClick={() => navigation.navigate(ROUTING_ROOM_CHAT, { chatId: item.chatId })}
+                            onClick={() =>{
+                                chatSocket.emit("joinRoom", item.chatId);
+                                navigation.navigate(ROUTING_ROOM_CHAT, { chatId: item.chatId });
+                            } }
                         />
                     ))}
                 </ScrollView>
