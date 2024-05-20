@@ -18,7 +18,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import {FontAwesomeButton} from "../../components/fontawesome-button";
 import {RoomChat} from "../../models/RoomChat.ts";
 import {firestore} from "../../configs/FirebaseConfig.ts";
-import {LIST_ALL_CHATS, LIST_ALL_MESSAGES} from "../../constants/QueryKey.ts";
+import {LIST_ALL_CHATS, LIST_ALL_MESSAGES, LIST_ALL_PARTICIPANTS} from "../../constants/QueryKey.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {useQueryClient} from "@tanstack/react-query";
 import {RoomType} from "../../models/RoomType.ts";
@@ -130,20 +130,20 @@ const HomeChatScreen = ({navigation}: any) => {
 
         //     notificationSocket.emit("add-user", userId);
         //
-        //     socket.on("msg-recieve-private", (data) => {
+        //     chatSocket.on("msg-recieve-private", (data) => {
         //         console.log('SOCKET PRIVATE MESSAGE RECEIVED', data)
         //
         //         const chatId = data.from;
-        //         queryClient.invalidateQueries({ queryKey: [QueryKey.LIST_ALL_PARTICIPANTS] });
-        //         queryClient.invalidateQueries({ queryKey: [`${QueryKey.LIST_ALL_MESSAGES}_${chatId}`] });
+        //         queryClient.invalidateQueries({ queryKey: [LIST_ALL_PARTICIPANTS] });
+        //         queryClient.invalidateQueries({ queryKey: [`${LIST_ALL_MESSAGES}_${chatId}`] });
         //     });
         //
-        //     socket.on("msg-recieve-public", (data) => {
+        //     chatSocket.on("msg-recieve-public", (data) => {
         //         console.log('SOCKET PUBLIC MESSAGE RECEIVED', data);
         //
         //         const chatId = data.from;
-        //         queryClient.invalidateQueries({ queryKey: [QueryKey.LIST_ALL_PARTICIPANTS] });
-        //         queryClient.invalidateQueries({ queryKey: [`${QueryKey.LIST_ALL_MESSAGES}_${chatId}`] });
+        //         queryClient.invalidateQueries({ queryKey: [LIST_ALL_PARTICIPANTS] });
+        //         queryClient.invalidateQueries({ queryKey: [`${LIST_ALL_MESSAGES}_${chatId}`] });
         //     });
         //
         //     notificationSocket.on("friendRequest", (data) => {
