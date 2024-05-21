@@ -36,10 +36,13 @@ import {RoomChat} from "../../models/RoomChat.ts";
 import {IMAGE, SHARE} from "../../constants/MessageType.ts";
 import {ImagePickerResponse, launchImageLibrary} from "react-native-image-picker";
 import {chatServiceApi} from "../../api/axiosConfig.ts";
+import {LIST_ALL_CHATS, LIST_ALL_MESSAGES} from "../../constants/QueryKey.ts";
+import {useQueryClient} from "@tanstack/react-query";
 
 
 
 const RoomChatScreen = ({ route, navigation }: any) => {
+    const queryClient = useQueryClient();
     const { chatId } = route.params;
     const user = useSelector((state: any) => state.userData);
     const userId = user.id;
@@ -191,6 +194,17 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                     })
                     setRoomChat(new RoomChat(data));
                 }
+            })
+
+        firestore.collection("Chats")
+            .doc(chatId)
+            .onSnapshot((snapshot: any) => {
+                console.log('EVENT NEW MESSAGE')
+                const docId = snapshot.id;
+                const docData = snapshot.data();
+                const chatId = docData.chatId;
+
+                queryClient.invalidateQueries({ queryKey: [`${LIST_ALL_MESSAGES}_${chatId}`] });
             })
     }, [chatId]);
 

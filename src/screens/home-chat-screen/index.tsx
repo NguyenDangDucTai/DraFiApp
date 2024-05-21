@@ -45,6 +45,7 @@ const HomeChatScreen = ({navigation}: any) => {
                 firestore.collection("Chats")
                     .doc(chat.chatId)
                     .onSnapshot((snapshot: any) => {
+                        console.log('EVENT NEW MESSAGE')
                         const docId = snapshot.id;
                         const docData = snapshot.data();
                         const chatId = docData.chatId;
@@ -77,7 +78,17 @@ const HomeChatScreen = ({navigation}: any) => {
                 isSender: false,
                 status: "Đang có cuộc gọi đến",
                 onAccept: () => {
+                    console.log('btn accept clicked 123')
                     chatSocket.emit("request-accept-voice-call", incomingVoiceCall, true);
+                    navigation.navigate(ROUTING_CALL, {
+                        chatId: incomingVoiceCall.chatId,
+                        userId: userId,
+                        userName: user.display_name,
+                        avatar: user.avatar,
+                        roomName: incomingVoiceCall.receiveName,
+                        roomType: RoomType.SINGLE,
+                        type: 'VIDEO',
+                    })
                 },
                 onReject: () => {
                     console.log('btn cancel clicked')
