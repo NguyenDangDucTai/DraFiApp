@@ -1,4 +1,5 @@
 import {chatServiceApi, notificationServiceApi} from "./axiosConfig.ts";
+import {tr} from "rn-emoji-keyboard";
 
 export const listAllChats = async () => {
     try {
@@ -32,6 +33,16 @@ export const sendMessage = async (
         throw error;
     }
 }
+
+export const removedMessage = async (messageId: string, chatId: string) =>{
+    try{
+        return await chatServiceApi.put(`/${chatId}/messages/${messageId}`);
+    } catch (error) {
+        throw error;
+    }
+}
+
+
 
 
 export const listAllAddFriendRequestReceived = async (userId: string) => {

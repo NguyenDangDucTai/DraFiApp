@@ -28,23 +28,29 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages
                 maxWidth: "70%",
                 position: 'relative'
             }}>
-                <TouchableOpacity onLongPress={onLongClick}>
-                    {msg.type === TEXT && (
-                        <TextContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
-                    )}
-                    {msg.type === IMAGE && (
-                        <ImageContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
-                    )}
-                    {msg.type === FILE && (
-                        <FileContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
-                    )}
-                    {msg.type === REPLY && (
-                        <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName} foundMessageReply={foundMessageReply}/>
-                    )}
-                    {msg.type.includes(SHARE) &&(
-                        <ShareContent content={msg.content} isSender={isSender} senderName={msg.senderName} msg={msg}/>
-                    )}
-                </TouchableOpacity>
+                {msg.status === "removed" ?(
+                    <View>
+                        <TextContent content={"Message has been recovered"} isSender={isSender} senderName={msg.senderName}/>
+                    </View>
+                ):(
+                    <TouchableOpacity onLongPress={onLongClick}>
+                        {msg.type === TEXT && (
+                            <TextContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                        )}
+                        {msg.type === IMAGE && (
+                            <ImageContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                        )}
+                        {msg.type === FILE && (
+                            <FileContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                        )}
+                        {msg.type === REPLY && (
+                            <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName} foundMessageReply={foundMessageReply}/>
+                        )}
+                        {msg.type.includes(SHARE) &&(
+                            <ShareContent content={msg.content} isSender={isSender} senderName={msg.senderName} msg={msg}/>
+                        )}
+                    </TouchableOpacity>
+                )}
 
                 <FontAwesomeButton
                     style={{

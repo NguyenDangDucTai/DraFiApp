@@ -33,8 +33,10 @@ import {
 } from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
-import {IMAGE, SHARE} from "../../constants/MessageType.ts";
 import {ImagePickerResponse, launchImageLibrary} from "react-native-image-picker";
+import firebase from "firebase/compat";
+import {Buffer} from "buffer";
+import storage = firebase.storage;
 import {chatServiceApi} from "../../api/axiosConfig.ts";
 
 
@@ -59,6 +61,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const [roomChat, setRoomChat] = useState<RoomChat>();
     const [showReply, setShowReply] = useState(false);
     const [typeSendMessage, setTypeSendMessage] = useState(MESSAGE_TYPE.TEXT)
+    const [msgShowReceive, setMsgShowReceive] = useState();
 
     const sendMessage = useSendMessage(chatId);
 
@@ -202,6 +205,32 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     }
 
     const scrollViewRef = useRef(null);
+    const handleRemoveMsg = async () => {
+        console.log(messageModalShow.msg.messageId)
+        await chatServiceApi.put(`/${chatId}/messages/${messageModalShow.msg.messageId}`)
+            .then(()=>{
+                if(roomChat?.type === "private"){
+                    const receiverID = roomChat?.getReceiverId(userId);
+                    chatSocket.emit("send-msg-private", {
+                        receiveId: receiverID,
+                        newMessage: messageModalShow.msg,
+                    })
+                    console.log("success emit private")
+                }
+                if(roomChat?.type === "public"){
+                    const receiverID = roomChat?.getReceiverId(userId);
+                    chatSocket.emit("send-msg-public", chatId,{
+                        receiveId: roomChat.participants.filter((item) => item !== userId),
+                        newMessage: messageModalShow.msg,
+                    })
+                }
+                console.log("Success removed")
+                setMessageModalShow(null)
+
+            }).catch((err) =>{
+                console.error(err)
+            })
+    }
 
     useEffect(() => {
         // Scroll to the bottom when content size changes
@@ -221,31 +250,44 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                 console.log('User tapped custom button:', response.customButton);
             } else {
                 // Set the selected image
-                setSelectedImage(response);
-                console.log(response);
+                setSelectedImage(response.assets[0]);
+                console.log(selectedImage);
+                const buffer = Buffer.from(selectedImage?.uri, 'base64');
+                console.log("buffer", buffer)
+                // let imageContent = "";
+                // const fileName = `images/${Date.now()}-${selectedImage?.fileName}`;
+                // console.log("1")
+                // const fileRef = storage
+                // console.log("2")
+                // await fileRef.put(buffer,{
+                //     contentType : selectedImage?.type
+                // }).then(()=>{
+                //
+                // }).error((err: any) =>{
+                //     console.error(err);
+                // })
+                //
+                // const url = await fileRef.getDownloadURL()
+                // console.log("url ne", url)
 
-                const formData = new FormData();// Tạo đối tượng File từ URI của hình ảnh
-                formData.append("image", selectedImage);
 
-                console.log("logne", formData);
-
-                await chatServiceApi.post(`/${chatId}/images`, {
-                        formData,
-                        newMessage: {
-                            messageId: uuidv4(),
-                            senderId: userId,
-                            senderName: displayName,
-                            senderPicture: userAvatar,
-                            type: IMAGE,
-                            timestamp: Date.now(),
-                        },
-                    })
-                    .then((response) => {
-                        console.log("Yes");
-                    })
-                    .catch((err) => {
-                        console.error("error", err);
-                    });
+                // await chatServiceApi.post(`/${chatId}/images`, {
+                //         formData,1
+                //         newMessage: {
+                //             messageId: uuidv4(),
+                //             senderId: userId,
+                //             senderName: displayName,
+                //             senderPicture: userAvatar,
+                //             type: IMAGE,
+                //             timestamp: Date.now(),
+                //         },
+                //     })
+                //     .then((response) => {
+                //         console.log("Yes");
+                //     })
+                //     .catch((err) => {
+                //         console.error("error", err);
+                //     });
 
                 // console.log("123123");
             }
@@ -315,10 +357,14 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                             msg: item,
                             isSender: item.senderId === userId,
                         })}
-                        onLongClick={() => setMessageModalShow({
-                            msg: item,
-                            isSender: item.senderId === userId,
-                        })}
+                        onLongClick={() => {
+                            setMessageModalShow({
+                                msg: item,
+                                isSender: item.senderId === userId,
+                            })
+                            setMsgShowReceive(item)
+                            setMsgShowReceive(item)
+                        }}
                     />
                 ))}
             </ScrollView>
@@ -528,14 +574,17 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                     iconPosition={"left"}
                                     iconStyle={{width: 30, height: 30, margin: 'auto'}}
                                 />
-                                <Button
-                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
-                                    text={"Thu hồi"}
-                                    textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
-                                    icon={require('../../assets/icon-recall.png')}
-                                    iconPosition={"left"}
-                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
-                                />
+                                {userId === msgShowReceive?.senderId && (
+                                    <Button
+                                        style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                        text={"Thu hồi"}
+                                        textStyle={{fontSize: 12, fontWeight: 500, color: 'gray', marginTop: 5}}
+                                        icon={require('../../assets/icon-recall.png')}
+                                        iconPosition={"left"}
+                                        iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                        onClick={handleRemoveMsg}
+                                    />
+                                )}
                                 <Button
                                     style={{ paddingVertical: 10, paddingHorizontal: 20 }}
                                     text={"Ghim"}
@@ -553,14 +602,16 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                     iconPosition={"left"}
                                     iconStyle={{width: 30, height: 30, margin: 'auto'}}
                                 />
-                                <Button
-                                    style={{ paddingVertical: 10, paddingHorizontal: 20 }}
-                                    text={"Xóa"}
-                                    textStyle={{fontSize: 12, textAlign: 'center', fontWeight: 500, color: 'gray', marginTop: 5}}
-                                    icon={require('../../assets/icon-trash.png')}
-                                    iconPosition={"left"}
-                                    iconStyle={{width: 30, height: 30, margin: 'auto'}}
-                                />
+                                {userId === msgShowReceive?.senderId && (
+                                    <Button
+                                        style={{ paddingVertical: 10, paddingHorizontal: 20 }}
+                                        text={"Xóa"}
+                                        textStyle={{fontSize: 12, textAlign: 'center', fontWeight: 500, color: 'gray', marginTop: 5}}
+                                        icon={require('../../assets/icon-trash.png')}
+                                        iconPosition={"left"}
+                                        iconStyle={{width: 30, height: 30, margin: 'auto'}}
+                                    />
+                                )}
                             </View>
                         </View>
                     </TouchableWithoutFeedback>
