@@ -46,6 +46,7 @@ import {ImagePickerResponse, launchImageLibrary} from "react-native-image-picker
 import {Buffer} from "buffer";
 import {chatReaction, chatServiceApi} from "../../api/axiosConfig.ts";
 import useGetAllReactionsUser from "../../api/useGetAllReactionsUser.ts";
+import firebase from "firebase/compat/app";
 
 
 
@@ -78,9 +79,21 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const [msgShowReceive, setMsgShowReceive] = useState();
     const [timeShowDelete, setTimeShowDelete] = useState();
 
-    const reactions = useGetAllReactionsUser(chatId).data;
+    // const reactions = useGetAllReactionsUser(chatId).data;
+    const [reactions, setReactions] = useState<any>([]);
 
-
+    useEffect(() => {
+        firestore.collection("Reactions")
+            .where("chatId", '==', chatId)
+            .onSnapshot((snapshot:any)=>{
+                const listReaction: any[] = [];
+                snapshot.forEach((doc) => {
+                    const reactionData = doc.data();
+                    listReaction.push(reactionData);
+                });
+                setReactions(listReaction);
+            })
+    }, []);
 
     const sendMessage = useSendMessage(chatId);
 
