@@ -14,8 +14,10 @@ import {useEffect, useState} from "react";
 
 function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages, reaction}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any, messages:any, reaction:any}) {
 
-    const foundMessageReply = messages.find((item) => item.messageId === msg.messageId);
+    const foundMessageReply = messages.find((item: any) => item.messageId === msg.messageId);
+    console.log("basda", reaction)
     const indexReaction = reaction?.length;
+    console.log(indexReaction);
     let visibleIcon : any;
     if(indexReaction > 0){
         visibleIcon = IconType[reaction[indexReaction -1].type];
@@ -53,7 +55,7 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages
 
                         {msg.status === "removed" ?(
                             <View>
-                                <TextContent content={"Message has been recovered"} isSender={isSender} senderName={msg.senderName}/>
+                                <TextContent content={"Message has been recovered"} isSender={isSender} senderName={msg.senderName} timestamp={""}/>
                             </View>
                         ):(
                             <TouchableOpacity onLongPress={onLongClick}>
@@ -116,7 +118,7 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages
     )
 }
 
-const TextContent = ({content, isSender, senderName, timestamp}: {content: any, isSender: boolean, senderName: any, timestamp}) => {
+const TextContent = ({content, isSender, senderName, timestamp}: {content: any, isSender: boolean, senderName: any, timestamp:any}) => {
     return (
         <View style={{
             paddingHorizontal: 15,

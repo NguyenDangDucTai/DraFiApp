@@ -1,8 +1,16 @@
-import {Animated, Modal, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {
+    Animated, Image,
+    ImageBackground,
+    Modal,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
+} from "react-native";
 import {styles} from "./styles.ts";
 import ScrollView = Animated.ScrollView;
 import {useSelector} from "react-redux";
-import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import {useEffect, useRef, useState} from "react";
 import {Asset, ImagePickerResponse, launchImageLibrary} from "react-native-image-picker";
@@ -15,7 +23,7 @@ import { faEllipsis } from '@fortawesome/free-solid-svg-icons/faEllipsis';
 import { faFaceSmile } from '@fortawesome/free-regular-svg-icons/faFaceSmile';
 import { faImages } from '@fortawesome/free-regular-svg-icons/faImages';
 import {faXmark} from "@fortawesome/free-solid-svg-icons/faXmark";
-
+import 'react-native-get-random-values';
 import * as MESSAGE_TYPE from "../../constants/MessageType.ts";
 import {cloudStorage, firestore} from "../../configs/FirebaseConfig.ts";
 import {useListAllMessage} from "../../api/useListAllMessages.ts";
@@ -34,7 +42,7 @@ import {
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
 import {IMAGE, SHARE} from "../../constants/MessageType.ts";
-import {chatServiceApi} from "../../api/axiosConfig.ts";
+import {chatReaction, chatServiceApi} from "../../api/axiosConfig.ts";
 import {LIST_ALL_MESSAGES} from "../../constants/QueryKey.ts";
 import {useQueryClient} from "@tanstack/react-query";
 
@@ -63,6 +71,23 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const [typeSendMessage, setTypeSendMessage] = useState(MESSAGE_TYPE.TEXT)
     const [msgShowReceive, setMsgShowReceive] = useState();
     const [timeShowDelete, setTimeShowDelete] = useState();
+
+
+    const [reactions, setReactions] = useState<any>([]);
+
+    useEffect(() => {
+        firestore.collection("Reactions")
+            .where("chatId", '==', chatId)
+            .onSnapshot((snapshot:any)=>{
+                const listReaction: any[] = [];
+                snapshot.forEach((doc:any) => {
+                    const reactionData = doc.data();
+                    listReaction.push(reactionData);
+                });
+                setReactions(listReaction);
+            })
+    }, [chatId]);
+
     const sendMessage = useSendMessage({
         roomType: roomChat?.type,
         chatId: chatId,
@@ -211,11 +236,11 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
     const scrollViewRef = useRef(null);
 
-    useEffect(() => {
-        // Scroll to the bottom when content size changes
-        // @ts-ignore
-        scrollViewRef.current.scrollToEnd({ animated: true });
-    }, [messages]);
+    // useEffect(() => {
+    //     // Scroll to the bottom when content size changes
+    //     // @ts-ignore
+    //     scrollViewRef.current.scrollToEnd({ animated: true });
+    // }, [messages]);
 
     const  handleDeleteMessage= async () => {
         console.log(messageModalShow.msg.messageId)
@@ -271,6 +296,8 @@ const RoomChatScreen = ({ route, navigation }: any) => {
             })
     }
 
+
+
     const [selectedImage, setSelectedImage] = useState<ImagePickerResponse| null>(null);
     const importImage = async () => {
         await launchImageLibrary({ presentationStyle: "fullScreen" }, async (response: ImagePickerResponse) => {
@@ -324,7 +351,12 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const handleCheckTime = (timestamp: any) =>{
         const timeToday = Date.now();
         const tenMinutesInMilliseconds = 60 * 1000;
+        // @ts-ignore
         setTimeShowDelete(timeToday - timestamp > tenMinutesInMilliseconds);
+    }
+
+    const handleLongClickMsg = async(item: any) =>{
+
     }
 
     const senderName = roomChat?.getDisplayName(userId);
@@ -435,17 +467,19 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                 msg: item,
                                 isSender: item.senderId === userId,
                             })}
-                            onLongClick={() => {
+                            onLongClick={()=>{
                                 setMessageModalShow({
                                     msg: item,
                                     isSender: item.senderId === userId,
                                 })
                                 setMsgShowReceive(item)
                                 setMsgShowReceive(item)
-                                const reactionMsgModalShow = reactions?.filter((reac:any)=> reac.messageId === item.messageId);
-                                const findReaction = reactionMsgModalShow.find((item:any) => item.senderId === userId);
-                                setReactionModalShow(findReaction);
-                                console.log("reaction modal show", reactionMsgModalShow)
+                                console.log("Contnet item", msgShowReceive)
+                                const findReaction = reactions.find((rec:any) => rec.senderId === userId && rec.messageId === item.messageId);
+                                console.log("find r select", findReaction)
+                                setReactionModalShow(findReaction)
+                                setReactionModalShow(findReaction)
+                                console.log("reaction modal show", reactionModalShow)
                                 handleCheckTime(item.timestamp)
                             }}
                         />
@@ -578,7 +612,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                 >
                     <TouchableWithoutFeedback>
                         <View>
-                            {emojiMessageModalShow && (<MessageItem msg={emojiMessageModalShow.msg} isSender={emojiMessageModalShow.isSender} messages={messages}/>)}
+                            {emojiMessageModalShow && (<MessageItem msg={emojiMessageModalShow.msg} isSender={emojiMessageModalShow.isSender} messages={messages} reaction={reactions}/>)}
                             <EmojisMessage onClick={(emojiCode: string) => console.log('emojiCode', emojiCode)}/>
                         </View>
                     </TouchableWithoutFeedback>
@@ -601,11 +635,14 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                         backgroundColor: 'rgba(0,0,0,0.6)',
                     }}
                     activeOpacity={1}
-                    onPressOut={() => setMessageModalShow(null)}
+                    onPressOut={() => {
+                        setReactionModalShow(null)
+                        setMessageModalShow(null)
+                    }}
                 >
                     <TouchableWithoutFeedback>
                         <View>
-                            {messageModalShow && (<MessageItem msg={messageModalShow.msg} isSender={messageModalShow.isSender} messages={messages} reaction={reactions?.filter((reac:any)=> reac.messageId === messageModalShow.msg.messageId)}/>)}
+                            {messageModalShow && (<MessageItem msg={messageModalShow.msg} isSender={messageModalShow.isSender} messages={messages} reaction={reactions.filter((rec:any) => rec.messageId === messageModalShow.messageId)}/>)}
                             <EmojisMessage
                                 reactionSelect={reactionModalShow}
                                 onClick={(emojiCode: string) => {
@@ -652,6 +689,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                                         }
                                     }
 
+                                    setReactionModalShow(null)
                                     setMessageModalShow(null)
                                 }}
                             />
