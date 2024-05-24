@@ -15,6 +15,20 @@ export const chatServiceApi = axios.create({
         "Content-Type": "application/json",
     }
 });
+export const chatReaction = axios.create({
+    baseURL: "https://chat.ntt1102.xyz/api/reactions",
+    timeout: 30000,
+    headers: {
+        "Content-Type": "application/json",
+    }
+})
+export const chatUser = axios.create({
+    baseURL: "https://chat.ntt1102.xyz/api/users",
+    timeout: 30000,
+    headers: {
+        "Content-Type": "application/json",
+    }
+})
 
 export const notificationServiceApi = axios.create({
     baseURL: "https://notification.ntt1102.xyz/api/requests",

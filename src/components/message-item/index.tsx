@@ -1,91 +1,171 @@
-import {Image, Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {Image, ImageBackground, Modal, Text, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
 import moment from "moment-timezone";
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 
 import {FontAwesomeButton} from "../fontawesome-button";
 import {styles} from "./styles";
-import {FILE, IMAGE, REPLY, SHARE, TEXT} from "../../constants/MessageType.ts";
+import {FILE, IMAGE, INIT, INITGROUP, REPLY, SHARE, TEXT} from "../../constants/MessageType.ts";
 import { faFile } from '@fortawesome/free-solid-svg-icons/faFile';
-import { faHeart } from '@fortawesome/free-regular-svg-icons/faHeart';
 import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons/faShareFromSquare';
+import {IconType} from "../../constants/IconType.ts";
+import {useState} from "react";
 
-function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any, messages:any }) {
+function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages, reaction}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any, messages:any, reaction:any}) {
 
     const foundMessageReply = messages.find((item) => item.messageId === msg.messageId);
+    const indexReaction = reaction?.length;
+    let visibleIcon : any;
+    if(indexReaction > 0){
+        visibleIcon = IconType[reaction[indexReaction -1].type];
+    } else{
+        visibleIcon = null;
+    }
+
+
     return (
-        <View
-            style={{
-                ...styles.messageBoxReceiver,
-                flexDirection: isSender ? "row-reverse" : "row",
-            }}
-        >
-            <Image
-                source={{uri: msg?.senderPicture}}
-                style={{borderRadius: 100, width: 40, height: 40}}
-            />
-            <View style={{
-                borderRadius: 7,
-                maxWidth: "70%",
-                position: 'relative'
-            }}>
-                {msg.status === "removed" ?(
-                    <View>
-                        <TextContent content={"Message has been recovered"} isSender={isSender} senderName={msg.senderName}/>
-                    </View>
-                ):(
-                    <TouchableOpacity onLongPress={onLongClick}>
-                        {msg.type === TEXT && (
-                            <TextContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
-                        )}
-                        {msg.type === IMAGE && (
-                            <ImageContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
-                        )}
-                        {msg.type === FILE && (
-                            <FileContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
-                        )}
-                        {msg.type === REPLY && (
-                            <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName} foundMessageReply={foundMessageReply}/>
-                        )}
-                        {msg.type.includes(SHARE) &&(
-                            <ShareContent content={msg.content} isSender={isSender} senderName={msg.senderName} msg={msg}/>
-                        )}
-                    </TouchableOpacity>
-                )}
-
-                <FontAwesomeButton
+        <View>
+            {msg.type.includes(INITGROUP) && (
+                <View style={{marginVertical:15, alignItems:'center'}}>
+                    <Text style={{color: 'black', backgroundColor:'white', paddingVertical:5, paddingHorizontal:10, borderRadius:10}}>
+                        {msg.content}
+                    </Text>
+                </View>
+            )}
+            {!msg.type.includes(INIT) &&(
+                <View
                     style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        right: 0,
-                        borderRadius: 100,
-                        borderStyle: 'solid',
-                        borderColor: '#dcdde1',
-                        borderWidth: 1,
-                        width: 30,
-                        height: 30,
-                        backgroundColor: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        ...styles.messageBoxReceiver,
+                        flexDirection: isSender ? "row-reverse" : "row",
                     }}
-                    icon={{
-                        icon: faHeart,
-                    }}
-                    onClick={() => {
-                        console.log('on click')
-                    }}
-                    onLongClick={onHeartIconLongClick}
-                />
+                >
 
-                <Text style={{color: "#95afc0", fontSize: 12, marginTop: 7}}>
-                    {moment(msg.timestamp).format('HH:mm')}
-                </Text>
-            </View>
+                    <Image
+                        source={{uri: msg?.senderPicture}}
+                        style={{borderRadius: 100, width: 40, height: 40}}
+                    />
+                    <View style={{
+                        borderRadius: 7,
+                        maxWidth: "70%",
+                        position: 'relative'
+                    }}>
+
+                        {msg.status === "removed" ?(
+                            <View>
+                                <TextContent content={"Message has been recovered"} isSender={isSender} senderName={msg.senderName}/>
+                            </View>
+                        ):(
+                            <TouchableOpacity onLongPress={onLongClick}>
+                                {msg.type === TEXT && (
+                                    <TextContent content={msg.content} isSender={isSender} senderName={msg.senderName} timestamp={msg.timestamp}/>
+                                )}
+                                {msg.type === IMAGE && (
+                                    <ImageContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                                )}
+                                {msg.type === FILE && (
+                                    <FileContent content={msg.content} isSender={isSender} senderName={msg.senderName}/>
+                                )}
+                                {msg.type === REPLY && (
+                                    <TextContentReply content={msg.content} isSender={isSender} senderName={msg.senderName} foundMessageReply={foundMessageReply}/>
+                                )}
+                                {msg.type.includes(SHARE) &&(
+                                    <ShareContent content={msg.content} isSender={isSender} senderName={msg.senderName} msg={msg}/>
+                                )}
+                            </TouchableOpacity>
+                        )}
+                        <View>
+                            {/*{reaction ? (*/}
+                            {/*    <FontAwesomeButton*/}
+                            {/*        style={{*/}
+                            {/*            position: 'absolute',*/}
+                            {/*            bottom: 0,*/}
+                            {/*            right: 0,*/}
+                            {/*            borderRadius: 100,*/}
+                            {/*            borderStyle: 'solid',*/}
+                            {/*            borderColor: '#dcdde1',*/}
+                            {/*            borderWidth: 1,*/}
+                            {/*            width: 30,*/}
+                            {/*            height: 30,*/}
+                            {/*            backgroundColor: 'white',*/}
+                            {/*            display: 'flex',*/}
+                            {/*            alignItems: 'center',*/}
+                            {/*            justifyContent: 'center',*/}
+                            {/*        }}*/}
+                            {/*        icon={{*/}
+                            {/*            icon: faHeart,*/}
+                            {/*        }}*/}
+                            {/*        onClick={() => {*/}
+                            {/*            console.log('on click')*/}
+                            {/*        }}*/}
+                            {/*        onLongClick={onHeartIconLongClick}*/}
+                            {/*    />*/}
+                            {/*):(*/}
+                            {/*    <Button*/}
+                            {/*        style={{*/}
+                            {/*            position: 'absolute',*/}
+                            {/*            bottom: 0,*/}
+                            {/*            right: 0,*/}
+                            {/*            borderRadius: 100,*/}
+                            {/*            borderStyle: 'solid',*/}
+                            {/*            borderColor: '#dcdde1',*/}
+                            {/*            borderWidth: 1,*/}
+                            {/*            width: 30,*/}
+                            {/*            height: 30,*/}
+                            {/*            backgroundColor: 'white',*/}
+                            {/*            display: 'flex',*/}
+                            {/*            alignItems: 'center',*/}
+                            {/*            justifyContent: 'center',*/}
+                            {/*        }}*/}
+                            {/*        onPress={() => {*/}
+                            {/*            console.log('on click')*/}
+                            {/*        }}*/}
+                            {/*        onLongPress={onHeartIconLongClick}*/}
+
+                            {/*    >*/}
+                            {/*        <Image source={{uri: "https://cdn.iconscout.com/icon/free/png-512/free-cry-face-sad-sob-tear-emoji-37716.png?f=webp&w=256"}} style={{width:20, height:20}}/>*/}
+                            {/*    </Button>*/}
+                            {/*)}*/}
+                            {reaction?.length !== 0 &&(
+                                <TouchableOpacity
+                                    style={{
+                                        position: 'absolute',
+                                        right:0,
+                                        bottom: msg.type === TEXT ? -12:0,
+                                        borderRadius: 100,
+                                        borderStyle: 'solid',
+                                        borderColor: '#dcdde1',
+                                        borderWidth: 1,
+                                        width: 30,
+                                        height: 30,
+                                        backgroundColor: 'white',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    onPress={() => {
+                                        console.log('on click')
+                                    }}
+                                    onLongPress={onHeartIconLongClick}
+
+                                >
+                                    <Image source={{uri: visibleIcon}} style={{width:20, height:20}}/>
+                                </TouchableOpacity>
+                            )}
+
+
+                            {msg.type !== TEXT &&(
+                                <Text style={{color: "#95afc0", fontSize: 12, marginTop: 7}}>
+                                    {moment(msg.timestamp).format('HH:mm')}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+                </View>
+            )}
         </View>
     )
 }
 
-const TextContent = ({content, isSender, senderName}: {content: any, isSender: boolean, senderName: any}) => {
+const TextContent = ({content, isSender, senderName, timestamp}: {content: any, isSender: boolean, senderName: any, timestamp}) => {
     return (
         <View style={{
             paddingHorizontal: 15,
@@ -99,6 +179,9 @@ const TextContent = ({content, isSender, senderName}: {content: any, isSender: b
             {!isSender && <Text style={{color:'black', marginBottom:5,}}>{senderName}</Text>}
             <Text style={{color: "#535c68", }}>
                 {content}
+            </Text>
+            <Text style={{color: "#95afc0", fontSize: 12, marginTop: 7}}>
+                {moment(timestamp).format('HH:mm')}
             </Text>
         </View>
     )

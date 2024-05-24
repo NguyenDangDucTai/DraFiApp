@@ -5,7 +5,7 @@ import {RoomChat} from "../../models/RoomChat.ts";
 import {useSelector} from "react-redux";
 import {useState} from "react";
 
-const MessageBox = ({ item, user, onClick }: { item: RoomChat, user: any, onClick?: any }) => {
+const MessageBox = ({ item, user, onClick}: { item: RoomChat, user: any, onClick?: any }) => {
 
     // const user = useSelector((state: any) => state.userData);
     const userId = user.id;

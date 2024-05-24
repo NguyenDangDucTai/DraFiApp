@@ -1,11 +1,42 @@
-import {Text, TouchableOpacity, View} from "react-native";
+import {Animated, Text, TouchableOpacity, View} from "react-native";
 import {styles} from "./styles.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons/faArrowLeft";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import ScrollView = Animated.ScrollView;
+import {ReceivedFriendRequest} from "../../components/ReceivedFriendRequest";
+import useListAllAddFriendRequestReceived from "../../api/useListAllAddFriendRequestReceived.ts";
+import {useSelector} from "react-redux";
+import {SentFriendRequest} from "../../components/SentFriendRequest";
+import useListAllAddFriendRequestSender from "../../api/useListAllAddFriendRequestSender.ts";
+import add = Animated.add;
 
 
 export const FriendRequestScreen = ({navigation}: any) =>{
+
+
+    const user = useSelector((state: any) => state.userData);
+    const userId = user.id;
+    // const userId = "92b06fbc-26fd-42ab-ba51-28374fa619ee";
+
+    // const { addFriendRequestReceivedList } = useListAllAddFriendRequestReceived(userId);
+    // const { addFriendRequestSenderList } = useListAllAddFriendRequestSender(userId);
+    //
+    //
+    // const [listReceived, setListReceived] = useState();
+    // const [listSender, setListSender] = useState();
+    //
+    // useEffect(() => {
+    //     setListSender(addFriendRequestSenderList)
+    // }, [addFriendRequestSenderList]);
+    // useEffect(() => {
+    //     setListReceived(addFriendRequestReceivedList);
+    // }, [addFriendRequestReceivedList]);
+    //
+    // console.log("Receiver: ", listReceived)
+    // console.log("Sender: ", listSender)
+
+
 
     const [selection, setSelection] = useState(true);
     const handleReceived = () =>{
@@ -14,6 +45,9 @@ export const FriendRequestScreen = ({navigation}: any) =>{
     const handleSent = () =>{
         setSelection(false)
     }
+
+
+
 
 
     return(
@@ -44,7 +78,7 @@ export const FriendRequestScreen = ({navigation}: any) =>{
                             onPress={handleReceived}
                         >
                             <Text style={{fontSize:20, color:'black'}}>
-                                Received
+                                Đã nhận
                             </Text>
                         </TouchableOpacity>
                         <View style={[{width:'90%', height:2},selection?{backgroundColor:'#33CCFF'}:{backgroundColor:'white'}]}/>
@@ -57,19 +91,19 @@ export const FriendRequestScreen = ({navigation}: any) =>{
                             onPress={handleSent}
                         >
                             <Text style={{fontSize:20, color: 'black'}}>
-                                Sent
+                                Đã gửi
                             </Text>
                         </TouchableOpacity>
                         <View style={[{ width:'90%', height:2, }, !selection?{backgroundColor:'#33CCFF'}:{backgroundColor:'white'}]}/>
                     </View>
                 </View>
-                {/*<ScrollView>*/}
-                {/*    {selection ? (*/}
-                {/*        <ReceivedFriendRequest navigation={navigation} listReceived={listReceived}/>*/}
-                {/*    ):(*/}
-                {/*        <SentFriendRequest navigation={navigation} listSent={listSent}/>*/}
-                {/*    )}*/}
-                {/*</ScrollView>*/}
+                <ScrollView>
+                    {selection ? (
+                        <ReceivedFriendRequest navigation={navigation}/>
+                    ):(
+                        <SentFriendRequest navigation={navigation}/>
+                    )}
+                </ScrollView>
             </View>
         </View>
     )

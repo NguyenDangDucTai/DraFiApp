@@ -19,7 +19,9 @@ const styles = StyleSheet.create({
     },
     bodyChat:{
         flex:1,
+        // width:"100%",
         backgroundColor: '#ecf0f1',
+        // justifyContent:'flex-end',
     },
     textInputChat:{
         flexDirection:'row',

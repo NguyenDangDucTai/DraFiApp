@@ -21,6 +21,7 @@ import {chatSocket} from "../../configs/SocketIOConfig.ts";
 
 const ShareMessageScreen =({navigation, route}:any) =>{
 
+
     const user = useSelector((state: any) => state.userData);
     const userId = user.id;
     const displayName = user.display_name;

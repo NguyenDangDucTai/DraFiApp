@@ -179,17 +179,27 @@ const HomeChatScreen = ({navigation}: any) => {
                 <ScrollView
                     keyboardDismissMode={"on-drag"}
                 >
-                    {participants?.map((item: RoomChat) => (
-                        <MessageBox
-                            key={item.chatId}
-                            item={new RoomChat(item)}
-                            user={user}
-                            onClick={() =>{
-                                chatSocket.emit("joinRoom", item.chatId);
-                                navigation.navigate(ROUTING_ROOM_CHAT, { chatId: item.chatId });
-                            } }
-                        />
-                    ))}
+                    {participants?.map((item: RoomChat) => {
+                        const participantIndex = item.participants.indexOf(userId);
+                        let avatar : string | undefined;
+                        if(item.type === "public"){
+                            avatar = item.picture;
+                        } else {
+                            avatar = item.picture.split('|')[participantIndex];
+                        }
+
+                        return(
+                            <MessageBox
+                                key={item.chatId}
+                                item={new RoomChat(item)}
+                                user={user}
+                                onClick={() =>{
+                                    chatSocket.emit("joinRoom", item.chatId);
+                                    navigation.navigate(ROUTING_ROOM_CHAT, { chatId: item.chatId, senderAvatar: avatar });
+                                } }
+                            />
+                        )
+                    })}
                 </ScrollView>
             </View>
         </View>

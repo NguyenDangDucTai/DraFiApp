@@ -53,6 +53,14 @@ export const listAllAddFriendRequestReceived = async (userId: string) => {
     }
 }
 
+export const listAllAddFriendRequestSender = async (userId: string) => {
+    try {
+        return await notificationServiceApi.get(`/getListSenderRequest/${userId}`);
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const deleteMessage = async ({ chatId, messageId }: { chatId: string, messageId: string }) => {
     try {
         return await chatServiceApi.delete(`/${chatId}/messages/${messageId}`);
