@@ -78,6 +78,8 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
         setMessage("");
         setShowReply(false);
+        setMessageReply(null);
+        setTypeSendMessage(MESSAGE_TYPE.TEXT);
     }
 
     const handleSendImageMessage = async (images: any[]) => {
@@ -95,7 +97,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         });
     }
 
-    const uploadImage = async (image: any) => {
+    const uploadImage = async (image: { fileName: string, uri: string }) => {
         const response = await fetch(image.uri);
         const blob = await response.blob();
         const imageRef = cloudStorage.ref(`images/${Date.now()}-${image.fileName}`);
