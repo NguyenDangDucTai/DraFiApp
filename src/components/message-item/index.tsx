@@ -4,11 +4,13 @@ import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
 
 import {FontAwesomeButton} from "../fontawesome-button";
 import {styles} from "./styles";
-import {FILE, IMAGE, INIT, INITGROUP, REPLY, SHARE, TEXT} from "../../constants/MessageType.ts";
+import {FILE, IMAGE, REPLY, SHARE, TEXT, INIT, INITGROUP} from "../../constants/MessageType.ts";
 import { faFile } from '@fortawesome/free-solid-svg-icons/faFile';
-import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons/faShareFromSquare';
+import { faHeart } from '@fortawesome/free-regular-svg-icons/faHeart';
 import {IconType} from "../../constants/IconType.ts";
-import {useState} from "react";
+import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons/faShareFromSquare';
+import {cloudStorage} from "../../configs/FirebaseConfig.ts";
+import {useEffect, useState} from "react";
 
 function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages, reaction}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any, messages:any, reaction:any}) {
 
@@ -73,57 +75,6 @@ function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages
                             </TouchableOpacity>
                         )}
                         <View>
-                            {/*{reaction ? (*/}
-                            {/*    <FontAwesomeButton*/}
-                            {/*        style={{*/}
-                            {/*            position: 'absolute',*/}
-                            {/*            bottom: 0,*/}
-                            {/*            right: 0,*/}
-                            {/*            borderRadius: 100,*/}
-                            {/*            borderStyle: 'solid',*/}
-                            {/*            borderColor: '#dcdde1',*/}
-                            {/*            borderWidth: 1,*/}
-                            {/*            width: 30,*/}
-                            {/*            height: 30,*/}
-                            {/*            backgroundColor: 'white',*/}
-                            {/*            display: 'flex',*/}
-                            {/*            alignItems: 'center',*/}
-                            {/*            justifyContent: 'center',*/}
-                            {/*        }}*/}
-                            {/*        icon={{*/}
-                            {/*            icon: faHeart,*/}
-                            {/*        }}*/}
-                            {/*        onClick={() => {*/}
-                            {/*            console.log('on click')*/}
-                            {/*        }}*/}
-                            {/*        onLongClick={onHeartIconLongClick}*/}
-                            {/*    />*/}
-                            {/*):(*/}
-                            {/*    <Button*/}
-                            {/*        style={{*/}
-                            {/*            position: 'absolute',*/}
-                            {/*            bottom: 0,*/}
-                            {/*            right: 0,*/}
-                            {/*            borderRadius: 100,*/}
-                            {/*            borderStyle: 'solid',*/}
-                            {/*            borderColor: '#dcdde1',*/}
-                            {/*            borderWidth: 1,*/}
-                            {/*            width: 30,*/}
-                            {/*            height: 30,*/}
-                            {/*            backgroundColor: 'white',*/}
-                            {/*            display: 'flex',*/}
-                            {/*            alignItems: 'center',*/}
-                            {/*            justifyContent: 'center',*/}
-                            {/*        }}*/}
-                            {/*        onPress={() => {*/}
-                            {/*            console.log('on click')*/}
-                            {/*        }}*/}
-                            {/*        onLongPress={onHeartIconLongClick}*/}
-
-                            {/*    >*/}
-                            {/*        <Image source={{uri: "https://cdn.iconscout.com/icon/free/png-512/free-cry-face-sad-sob-tear-emoji-37716.png?f=webp&w=256"}} style={{width:20, height:20}}/>*/}
-                            {/*    </Button>*/}
-                            {/*)}*/}
                             {reaction?.length !== 0 &&(
                                 <TouchableOpacity
                                     style={{
@@ -238,22 +189,43 @@ function FileContent({content, isSender, senderName}: { content: any, isSender: 
                     marginBottom: index === fileList.length - 1 ? 0 : 10,
                     borderRadius: 7
                 }}>
-                    <FontAwesomeIcon icon={faFile} size={35} color="#8854d0"/>
-                    <View>
-                        <Text
-                            style={{borderRadius: 5, color: "#535c68", fontSize: 15, fontWeight: 500}}
-                        >
-                            File Name
-                        </Text>
-                        <Text
-                            style={{borderRadius: 5, color: "#535c68", fontSize: 12}}
-                        >
-                            15 KB - CSV
-                        </Text>
-                    </View>
+                    <FileContentItem file={file}/>
                 </View>
             ))}
         </View>
+    )
+}
+
+const FileContentItem = ({ file }: { file: string }) => {
+    const [metadata, setMetadata] = useState<any>(null);
+    const fileName = metadata?.name || 'File Name';
+    const arr = metadata?.name?.split('.') || [];
+    const fileType = arr.length > 0 ? arr[arr.length - 1] : 'File Type';
+    const fileSize = metadata?.size ? (metadata.size / 1024).toFixed(0) + ' KB' : 'File Size';
+
+    useEffect(() => {
+        cloudStorage.refFromURL(file).getMetadata()
+            .then((metadata) => {
+                setMetadata(metadata);
+            });
+    }, [file]);
+
+    return (
+        <>
+            <FontAwesomeIcon icon={faFile} size={35} color="#8854d0"/>
+            <View>
+                <Text
+                    style={{borderRadius: 5, color: "#535c68", fontSize: 15, fontWeight: 500}}
+                >
+                    {fileName}
+                </Text>
+                <Text
+                    style={{borderRadius: 5, marginTop: 5, color: "#535c68", fontSize: 12}}
+                >
+                    {fileSize} - {fileType}
+                </Text>
+            </View>
+        </>
     )
 }
 
