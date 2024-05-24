@@ -12,7 +12,7 @@ const useSendMessage = ({roomType, chatId, sender, receiver}: {roomType: string 
         mutationFn: async (message: any) => sendMessage({
             ...message,
             chatId: chatId,
-            messageId: uuidv4(),
+            messageId: message.replyTo || uuidv4(),
             senderId: sender.id,
             senderName: sender.name,
             senderPicture: sender.picture,

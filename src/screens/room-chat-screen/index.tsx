@@ -73,6 +73,7 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         sendMessage({
             type: typeSendMessage,
             content: message,
+            replyTo: messageReply?.msg?.messageId
         });
 
         setMessage("");
