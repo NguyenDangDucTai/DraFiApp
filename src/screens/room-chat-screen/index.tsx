@@ -3,8 +3,8 @@ import {styles} from "./styles.ts";
 import ScrollView = Animated.ScrollView;
 import {useSelector} from "react-redux";
 import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
 import {useEffect, useRef, useState} from "react";
+import {Asset, ImagePickerResponse, launchImageLibrary} from "react-native-image-picker";
 
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
@@ -17,7 +17,7 @@ import { faImages } from '@fortawesome/free-regular-svg-icons/faImages';
 import {faXmark} from "@fortawesome/free-solid-svg-icons/faXmark";
 
 import * as MESSAGE_TYPE from "../../constants/MessageType.ts";
-import {firestore} from "../../configs/FirebaseConfig.ts";
+import {cloudStorage, firestore} from "../../configs/FirebaseConfig.ts";
 import {useListAllMessage} from "../../api/useListAllMessages.ts";
 import {useSendMessage} from "../../api/useSendMessage.ts";
 import {MessageItem} from "../../components/message-item";
@@ -26,17 +26,14 @@ import {EmojisMessage} from "../../components/emojis-message";
 import {Button} from "../../components/button";
 import {EmojiKeyboard} from "rn-emoji-keyboard";
 import {
-    ROUTING_CALL,
     ROUTING_CALL_CONNECTION_SCREEN,
     ROUTING_INFO_SINGLE_ROOM,
-    ROUTING_ROOM_CHAT, ROUTING_SHARE_MESSAGE_SCREEN
+    ROUTING_SHARE_MESSAGE_SCREEN
 } from "../../navigation/path.ts";
 import {chatSocket} from "../../configs/SocketIOConfig.ts";
 import {RoomChat} from "../../models/RoomChat.ts";
 import {IMAGE, SHARE} from "../../constants/MessageType.ts";
-import {ImagePickerResponse, launchImageLibrary} from "react-native-image-picker";
-import {chatServiceApi} from "../../api/axiosConfig.ts";
-import {LIST_ALL_CHATS, LIST_ALL_MESSAGES} from "../../constants/QueryKey.ts";
+import {LIST_ALL_MESSAGES} from "../../constants/QueryKey.ts";
 import {useQueryClient} from "@tanstack/react-query";
 
 
@@ -63,54 +60,48 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const [showReply, setShowReply] = useState(false);
     const [typeSendMessage, setTypeSendMessage] = useState(MESSAGE_TYPE.TEXT)
 
-    const sendMessage = useSendMessage(chatId);
+    const sendMessage = useSendMessage({
+        roomType: roomChat?.type,
+        chatId: chatId,
+        sender: { id: userId, name: displayName, picture: userAvatar},
+        receiver: roomChat?.getReceiverId(userId)
+    });
 
     const handleSendMessage = () =>{
         if(message.trim() === "") return;
-        const time = Date.now()
-        const messageId = uuidv4()
+
         sendMessage({
-            chatId: chatId,
-            messageId: messageId,
-            senderId: userId,
-            senderName: displayName,
-            senderPicture: userAvatar,
             type: typeSendMessage,
             content: message,
-            timestamp: time,
         });
-        if(roomChat?.type === "private"){
-            const receiverID = roomChat?.getReceiverId(userId);
-            chatSocket.emit("send-msg-private", {
-                receiveId: receiverID,
-                newMessage:{
-                    messageId: messageId,
-                    senderId: userId,
-                    senderName: displayName,
-                    senderPicture: userAvatar,
-                    type: typeSendMessage,
-                    content: message,
-                    timestamp: time,
-                }
-            })
-        }
-        if(roomChat?.type === "public"){
-            const receiverID = roomChat?.getReceiverId(userId);
-            chatSocket.emit("send-msg-public", chatId,{
-                receiveId: roomChat.participants.filter((item) => item !== userId),
-                newMessage:{
-                    messageId: messageId,
-                    senderId: userId,
-                    senderName: displayName,
-                    senderPicture: userAvatar,
-                    type: typeSendMessage,
-                    content: message,
-                    timestamp: time,
-                }
-            })
-        }
+
         setMessage("");
         setShowReply(false);
+    }
+
+    const handleSendImageMessage = async (images: any[]) => {
+        console.log('handle send image message', images);
+
+        let messageContent = '';
+        for(const image of images) {
+            const imageUrl = await uploadImage(image);
+            messageContent += imageUrl + '|';
+        }
+
+        sendMessage({
+            type: IMAGE,
+            content: messageContent,
+        });
+    }
+
+    const uploadImage = async (image: any) => {
+        const response = await fetch(image.uri);
+        const blob = await response.blob();
+        const imageRef = cloudStorage.ref(`images/${Date.now()}-${image.fileName}`);
+        const uploadImageResponse = await imageRef.put(blob);
+        const imageUrl = await imageRef.getDownloadURL();
+        console.log('IMAGE URL', imageUrl);
+        return imageUrl;
     }
 
     const handleBtnCallClick = (callType: string) => {
@@ -227,6 +218,8 @@ const RoomChatScreen = ({ route, navigation }: any) => {
     const [selectedImage, setSelectedImage] = useState<ImagePickerResponse| null>(null);
     const importImage = async () => {
         await launchImageLibrary({ presentationStyle: "fullScreen" }, async (response: ImagePickerResponse) => {
+            console.log('Response = ', response);
+
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.error) {
@@ -243,23 +236,29 @@ const RoomChatScreen = ({ route, navigation }: any) => {
 
                 console.log("logne", formData);
 
-                await chatServiceApi.post(`/${chatId}/images`, {
-                        formData,
-                        newMessage: {
-                            messageId: uuidv4(),
-                            senderId: userId,
-                            senderName: displayName,
-                            senderPicture: userAvatar,
-                            type: IMAGE,
-                            timestamp: Date.now(),
-                        },
-                    })
-                    .then((response) => {
-                        console.log("Yes");
-                    })
-                    .catch((err) => {
-                        console.error("error", err);
-                    });
+                const images = response?.assets?.map((asset: Asset) => ({
+                    uri: asset.uri,
+                    fileName: asset.fileName,
+                })) || [];
+                handleSendImageMessage(images);
+
+                // await chatServiceApi.post(`/${chatId}/images`, {
+                //         formData,
+                //         newMessage: {
+                //             messageId: uuidv4(),
+                //             senderId: userId,
+                //             senderName: displayName,
+                //             senderPicture: userAvatar,
+                //             type: IMAGE,
+                //             timestamp: Date.now(),
+                //         },
+                //     })
+                //     .then((response) => {
+                //         console.log("Yes");
+                //     })
+                //     .catch((err) => {
+                //         console.error("error", err);
+                //     });
 
                 // console.log("123123");
             }

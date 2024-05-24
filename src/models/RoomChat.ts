@@ -37,6 +37,9 @@ export class RoomChat {
             const index = this.participants.indexOf(userId);
             return index >= 0 ? this.participants[index === 0 ? 1 : 0] : '';
         }
+        if(this.type === RoomType.GROUP) {
+            return this.participants.filter((id) => id !== userId);
+        }
         return '';
     }
 

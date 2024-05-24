@@ -8,6 +8,8 @@ import {FILE, IMAGE, REPLY, SHARE, TEXT} from "../../constants/MessageType.ts";
 import { faFile } from '@fortawesome/free-solid-svg-icons/faFile';
 import { faHeart } from '@fortawesome/free-regular-svg-icons/faHeart';
 import { faShareFromSquare } from '@fortawesome/free-regular-svg-icons/faShareFromSquare';
+import {cloudStorage} from "../../configs/FirebaseConfig.ts";
+import {useEffect, useState} from "react";
 
 function MessageItem({msg, isSender, onLongClick, onHeartIconLongClick, messages}: { msg: any, isSender: boolean, onLongClick?: any, onHeartIconLongClick?: any, messages:any }) {
 
@@ -149,22 +151,43 @@ function FileContent({content, isSender, senderName}: { content: any, isSender: 
                     marginBottom: index === fileList.length - 1 ? 0 : 10,
                     borderRadius: 7
                 }}>
-                    <FontAwesomeIcon icon={faFile} size={35} color="#8854d0"/>
-                    <View>
-                        <Text
-                            style={{borderRadius: 5, color: "#535c68", fontSize: 15, fontWeight: 500}}
-                        >
-                            File Name
-                        </Text>
-                        <Text
-                            style={{borderRadius: 5, color: "#535c68", fontSize: 12}}
-                        >
-                            15 KB - CSV
-                        </Text>
-                    </View>
+                    <FileContentItem file={file}/>
                 </View>
             ))}
         </View>
+    )
+}
+
+const FileContentItem = ({ file }: { file: string }) => {
+    const [metadata, setMetadata] = useState<any>(null);
+    const fileName = metadata?.name || 'File Name';
+    const arr = metadata?.name?.split('.') || [];
+    const fileType = arr.length > 0 ? arr[arr.length - 1] : 'File Type';
+    const fileSize = metadata?.size ? (metadata.size / 1024).toFixed(0) + ' KB' : 'File Size';
+
+    useEffect(() => {
+        cloudStorage.refFromURL(file).getMetadata()
+            .then((metadata) => {
+                setMetadata(metadata);
+            });
+    }, [file]);
+
+    return (
+        <>
+            <FontAwesomeIcon icon={faFile} size={35} color="#8854d0"/>
+            <View>
+                <Text
+                    style={{borderRadius: 5, color: "#535c68", fontSize: 15, fontWeight: 500}}
+                >
+                    {fileName}
+                </Text>
+                <Text
+                    style={{borderRadius: 5, marginTop: 5, color: "#535c68", fontSize: 12}}
+                >
+                    {fileSize} - {fileType}
+                </Text>
+            </View>
+        </>
     )
 }
 
