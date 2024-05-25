@@ -17,7 +17,7 @@ export const InformationSingleRoom = ({navigation, route}:any) =>{
     const {item, user} = route.params;
     const userId = user.id;
     const participantIndex = item.participants.indexOf(userId);
-    const friendId = item.participants.filter(item => item !== userId);
+    const friendId = item.participants.filter((item:any )=> item !== userId);
 
 
 

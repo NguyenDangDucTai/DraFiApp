@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
         borderRadius:5,
         marginRight:5,
         paddingHorizontal:10,
+        color:'black',
 
     },
     btnFind:{
@@ -53,13 +54,15 @@ const styles = StyleSheet.create({
     },
     boxUser:{
         flex:1,
-        padding:10,
         flexDirection:'row',
-        alignItems:'center',
-        marginHorizontal:15,
-        marginVertical:5,
+        marginHorizontal:20,
+        marginVertical:15,
+        backgroundColor:'white',
         borderRadius:10,
-        backgroundColor:'white'
+        paddingHorizontal:10,
+        paddingVertical:15,
+        alignItems:'center',
+
     }
 })
 

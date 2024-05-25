@@ -5,6 +5,7 @@ import useListAllAddFriendRequestReceived from "../../api/useListAllAddFriendReq
 import {chatUser, notificationServiceApi} from "../../api/axiosConfig.ts";
 import {notificationSocket} from "../../configs/SocketIOConfig.ts";
 import {useEffect, useState} from "react";
+import {firestore} from "../../configs/FirebaseConfig.ts";
 
 
 export const ReceivedFriendRequest = ({navigation}:any) =>{
@@ -16,8 +17,17 @@ export const ReceivedFriendRequest = ({navigation}:any) =>{
     const [listReceived, setListReceived] = useState<any>();
 
     useEffect(() => {
-        setListReceived(addFriendRequestReceivedList);
-    }, [addFriendRequestReceivedList]);
+        firestore.collection("FriendRequests")
+            .where("receiver", "==", userId)
+            .onSnapshot((snapshot:any) =>{
+                const listRequest: any[] =[]
+                snapshot.forEach((doc:any)=>{
+                    const requestData = doc.data();
+                    listRequest.push(requestData)
+                });
+                setListReceived(listRequest);
+            })
+    }, []);
     console.log("Receiver: ", listReceived)
 
 

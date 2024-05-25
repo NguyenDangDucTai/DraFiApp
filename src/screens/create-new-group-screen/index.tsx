@@ -9,6 +9,10 @@ import {faArrowLeft} from "@fortawesome/free-solid-svg-icons/faArrowLeft";
 import {faCheck} from "@fortawesome/free-solid-svg-icons/faCheck";
 import {faArrowCircleRight} from "@fortawesome/free-solid-svg-icons/faArrowCircleRight";
 import {FontAwesomeIcon} from "@fortawesome/react-native-fontawesome";
+import {firestore} from "../../configs/FirebaseConfig.ts";
+import {ROUTING_TAB} from "../../navigation/path.ts";
+import { v4 as uuidv4 } from 'uuid';
+import {chatServiceApi} from "../../api/axiosConfig.ts";
 
 
 export const CreateNewGroupScreen = ({navigation}:any) => {
@@ -16,7 +20,6 @@ export const CreateNewGroupScreen = ({navigation}:any) => {
 
     const user = useSelector((state:any) => state.userData);
     const userId = user.id;
-    const { participants } = useListParticipants(userId);
 
     const createGroupChat = useCreateGroupChat();
 
@@ -25,8 +28,18 @@ export const CreateNewGroupScreen = ({navigation}:any) => {
     const [disableButtonCreate, setDisableButtonCreate] = useState(true)
     const [listAddInGroupId, setListAddInGroupId] = useState([]);
     const [avatarGroup, setAvatarGroup] = useState("https://firebasestorage.googleapis.com/v0/b/chatservice-d1f1c.appspot.com/o/avatars%2FavatarGroup.jpg?alt=media&token=cc85e7a4-6bbc-40d2-941c-313db77a2745");
+    const [listFriend, setListFriend] = useState<any>([]);
 
-    console.log('PPPPP', participants);
+    useEffect(() => {
+        firestore.collection("Users")
+            .doc(userId)
+            .onSnapshot((snapshot:any)=>{
+                setListFriend(snapshot.data().friends);
+                console.log("Friend ", listFriend);
+            })
+    }, [userId]);
+
+
 
     // const listFriend = {};
     useEffect(()=>{
@@ -44,24 +57,78 @@ export const CreateNewGroupScreen = ({navigation}:any) => {
     }, [listAddInGroupId]);
 
     const handleCreateGroup = () =>{
-        const listMemberIds = {};
-        for(const item of listAddInGroupId) {
-            item.participants.forEach(participantId => {
-                listMemberIds[participantId] = true;
-            })
-        }
+        const listMemberIds = listAddInGroupId.reduce((acc:any, item:any) => {
+            acc[item.id] = true;
+            return acc;
+        }, {});
+        listMemberIds[userId] = true;
+        console.log(listMemberIds)
+        const content = "You added by " + user.display_name;
+        console.log("GroupName",groupName)
 
-        console.log(listMemberIds);
-        console.log(Object.keys(listMemberIds));
-
-        createGroupChat({
-            groupName: groupName,
-            participantIdList: Object.keys(listMemberIds),
+        chatServiceApi.post(``,{
+            name: groupName,
+            participants: Object.keys(listMemberIds),
             type: "public",
             picture: "https://firebasestorage.googleapis.com/v0/b/chatservice-d1f1c.appspot.com/o/avatars%2FavatarGroup.jpg?alt=media&token=cc85e7a4-6bbc-40d2-941c-313db77a2745",
             managerId: userId,
-        });
-        navigation.navigate("HomeChat");
+            messages:[{
+                content:content,
+                messaged: uuidv4(),
+                senderId: userId,
+                senderName: user.display_name,
+                senderPicture: user.profilePicture,
+                status:"sent",
+                timestamp:Date.now(),
+                type:"init group"
+            }]
+        }).then(()=>{
+            console.log("Success create group")
+            navigation.navigate(ROUTING_TAB);
+        }).catch((err)=>{
+            console.error(err)
+
+        })
+
+        //
+        // createGroupChat({
+        //     groupName: groupName,
+        //     participantIdList: Object.keys(listMemberIds),
+        //     type: "public",
+        //     picture: "https://firebasestorage.googleapis.com/v0/b/chatservice-d1f1c.appspot.com/o/avatars%2FavatarGroup.jpg?alt=media&token=cc85e7a4-6bbc-40d2-941c-313db77a2745",
+        //     managerId: userId,
+        // })
+        // navigation.navigate(ROUTING_TAB);
+        //
+        // firestore.collection("Chats")
+        //     .add({
+        //         chatId: uuidv4(),
+        //         managerId: userId,
+        //         name: groupName,
+        //         participants: Object.keys(listMemberIds),
+        //         deleteId: null,
+        //         picture: "https://firebasestorage.googleapis.com/v0/b/chatservice-d1f1c.appspot.com/o/avatars%2FavatarGroup.jpg?alt=media&token=cc85e7a4-6bbc-40d2-941c-313db77a2745",
+        //         type:"public",
+        //         messages:[{
+        //             content:content,
+        //             messaged: uuidv4(),
+        //             senderId: userId,
+        //             senderName: user.display_name,
+        //             senderPicture: user.profilePicture,
+        //             status:"sent",
+        //             timestamp:Date.now(),
+        //             type:"init group"
+        //         }]
+        //     })
+        //     .then(()=>{
+        //         console.log("Success create group")
+        //         navigation.navigate(ROUTING_TAB);
+        //     })
+        //     .catch((err)=>{
+        //         console.error(err)
+        //
+        //     })
+
     }
 
     return(
@@ -124,24 +191,16 @@ export const CreateNewGroupScreen = ({navigation}:any) => {
             <ScrollView
                 keyboardDismissMode={"on-drag"}
                 style={styles.listFriendView}>
-                {participants?(
-                    participants.map((item: any)=>{
-                        const chatId = item.chatId;
-                        const participantIndex = item.participants.indexOf(userId);
-                        const friendId = item.participants[participantIndex];
-                        const friendName = item.name.split('/')[participantIndex];
-                        const picture = item.picture;
-                        const type = item.type;
+                {listFriend?(
+                    listFriend.map((item: any)=>{
 
                         const friendItem = {
-                            id: chatId,
-                            image: picture,
-                            displayName: friendName,
-                            userName: friendName,
-                            participants: item.participants,
+                            id: item.id,
+                            image: item.profilePicture,
+                            displayName: item.displayName,
                         }
                         return(
-                            type !== 'public' && <ListFriendView key={friendItem.id} item={friendItem} setListAddInGroupId={setListAddInGroupId}/>
+                            <ListFriendView key={friendItem.id} item={friendItem} setListAddInGroupId={setListAddInGroupId}/>
                         )
                     })
                 ):(
@@ -160,7 +219,7 @@ export const CreateNewGroupScreen = ({navigation}:any) => {
                                 <Image
                                     key={i}
                                     // source={{uri: item.image}}
-                                    source={{uri: avatarGroup}}
+                                    source={{uri: item.image}}
                                     style={{width:50, height:50, marginRight: 10, borderRadius:100,}}
                                 />
                             )

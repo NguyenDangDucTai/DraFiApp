@@ -35,7 +35,7 @@ import {Button} from "../../components/button";
 import {EmojiKeyboard} from "rn-emoji-keyboard";
 import {
     ROUTING_CALL,
-    ROUTING_CALL_CONNECTION_SCREEN,
+    ROUTING_CALL_CONNECTION_SCREEN, ROUTING_INFO_GROUP_ROOM,
     ROUTING_INFO_SINGLE_ROOM,
     ROUTING_ROOM_CHAT, ROUTING_SHARE_MESSAGE_SCREEN
 } from "../../navigation/path.ts";
@@ -221,18 +221,13 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                 console.log('EVENT NEW MESSAGE')
                 const docId = snapshot.id;
                 const docData = snapshot.data();
-                const chatId = docData.chatId;
+                const chatId = docData?.chatId;
 
                 queryClient.invalidateQueries({ queryKey: [`${LIST_ALL_MESSAGES}_${chatId}`] });
             })
     }, [chatId]);
 
-    const typeRoom = roomChat?.type
-    const handleMenu = ()=>{
-        if(typeRoom === 'private'){
-            navigation.navigate(ROUTING_INFO_SINGLE_ROOM, {item: roomChat, user: user });
-        }
-    }
+
 
     const scrollViewRef = useRef(null);
 
@@ -324,26 +319,6 @@ const RoomChatScreen = ({ route, navigation }: any) => {
                     fileName: asset.fileName,
                 })) || [];
                 handleSendImageMessage(images);
-
-                // await chatServiceApi.post(`/${chatId}/images`, {
-                //         formData,
-                //         newMessage: {
-                //             messageId: uuidv4(),
-                //             senderId: userId,
-                //             senderName: displayName,
-                //             senderPicture: userAvatar,
-                //             type: IMAGE,
-                //             timestamp: Date.now(),
-                //         },
-                //     })
-                //     .then((response) => {
-                //         console.log("Yes");
-                //     })
-                //     .catch((err) => {
-                //         console.error("error", err);
-                //     });
-
-                // console.log("123123");
             }
         });
     };
@@ -354,9 +329,13 @@ const RoomChatScreen = ({ route, navigation }: any) => {
         // @ts-ignore
         setTimeShowDelete(timeToday - timestamp > tenMinutesInMilliseconds);
     }
-
-    const handleLongClickMsg = async(item: any) =>{
-
+    const typeRoom = roomChat?.type
+    const handleMenu = ()=>{
+        if(typeRoom === 'private'){
+            navigation.navigate(ROUTING_INFO_SINGLE_ROOM, {item: roomChat, user: user });
+        } else{
+            navigation.navigate(ROUTING_INFO_GROUP_ROOM, {roomChat: roomChat, chatId: chatId });
+        }
     }
 
     const senderName = roomChat?.getDisplayName(userId);
