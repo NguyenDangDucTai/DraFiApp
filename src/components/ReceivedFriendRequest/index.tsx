@@ -2,7 +2,7 @@ import {Image, Text, TouchableOpacity, View} from "react-native";
 import {styles} from "./styles.ts";
 import {useSelector} from "react-redux";
 import useListAllAddFriendRequestReceived from "../../api/useListAllAddFriendRequestReceived.ts";
-import {chatUser, notificationServiceApi} from "../../api/axiosConfig.ts";
+import {chatServiceApi, chatUser, notificationServiceApi} from "../../api/axiosConfig.ts";
 import {notificationSocket} from "../../configs/SocketIOConfig.ts";
 import {useEffect, useState} from "react";
 import {firestore} from "../../configs/FirebaseConfig.ts";
@@ -68,7 +68,7 @@ function ReceivedBox({item, navigation, userId}:any) {
             profilePicture: item.profilePicture,
             receiver: userId,
         };
-        await chatUser.post(`/${userId}`, postData)
+        await chatServiceApi.put(`/${userId}`, postData)
             .then(()=>{
                 console.log("Success accept")
             }).catch((err)=>{
